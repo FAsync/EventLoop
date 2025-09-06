@@ -13,6 +13,9 @@
             "name": "Reymart A. Calicdan"
         }
     ],
+    "require": {
+        "php": "^8.2"
+    },
     "require-dev": {
         "pestphp/pest": "^4.0"
     },
