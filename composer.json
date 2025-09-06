@@ -28,5 +28,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
+    },
+    "suggest": {
+        "ext-uv": "More performant event loop using libuv instead of streams"
     }
 }
