@@ -1,11 +1,11 @@
 <?php
 
-namespace Fasync\EventLoop\Managers;
+namespace Hibla\EventLoop\Managers;
 
-use Fasync\EventLoop\IOHandlers\File\FileOperationHandler;
-use Fasync\EventLoop\IOHandlers\File\FileWatcherHandler;
-use Fasync\EventLoop\ValueObjects\FileOperation;
-use Fasync\EventLoop\ValueObjects\FileWatcher;
+use Hibla\EventLoop\IOHandlers\File\FileOperationHandler;
+use Hibla\EventLoop\IOHandlers\File\FileWatcherHandler;
+use Hibla\EventLoop\ValueObjects\FileOperation;
+use Hibla\EventLoop\ValueObjects\FileWatcher;
 
 /**
  * Manages all asynchronous file operations and file watchers for the event loop.

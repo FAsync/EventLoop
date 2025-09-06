@@ -1,8 +1,8 @@
 <?php
 
-namespace Fasync\EventLoop\IOHandlers\Uv;
+namespace Hibla\EventLoop\IOHandlers\Uv;
 
-use Fasync\EventLoop\Handlers\SleepHandler;
+use Hibla\EventLoop\Handlers\SleepHandler;
 
 /**
  * UV-aware sleep handler that leverages libuv's efficient polling

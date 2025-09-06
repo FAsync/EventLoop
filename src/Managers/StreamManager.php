@@ -1,10 +1,10 @@
 <?php
 
-namespace Fasync\EventLoop\Managers;
+namespace Hibla\EventLoop\Managers;
 
-use Fasync\EventLoop\IOHandlers\Stream\StreamSelectHandler;
-use Fasync\EventLoop\IOHandlers\Stream\StreamWatcherHandler;
-use Fasync\EventLoop\ValueObjects\StreamWatcher;
+use Hibla\EventLoop\IOHandlers\Stream\StreamSelectHandler;
+use Hibla\EventLoop\IOHandlers\Stream\StreamWatcherHandler;
+use Hibla\EventLoop\ValueObjects\StreamWatcher;
 
 /**
  * Manages stream watchers for an event loop.

@@ -1,8 +1,8 @@
 <?php
 
-namespace Fasync\EventLoop\ValueObjects;
+namespace Hibla\EventLoop\ValueObjects;
 
-use Fasync\EventLoop\Interfaces\TimerInterface;
+use Hibla\EventLoop\Interfaces\TimerInterface;
 
 /**
  * Value object representing a scheduled timer in the async event loop.

@@ -1,8 +1,8 @@
 <?php
 
-namespace Fasync\EventLoop\IOHandlers\Timer;
+namespace Hibla\EventLoop\IOHandlers\Timer;
 
-use Fasync\EventLoop\ValueObjects\Timer;
+use Hibla\EventLoop\ValueObjects\Timer;
 
 /**
  * Handles timer scheduling and delay calculations.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\IOHandlers\Http;
+namespace Hibla\EventLoop\IOHandlers\Http;
 
 use RuntimeException;
 

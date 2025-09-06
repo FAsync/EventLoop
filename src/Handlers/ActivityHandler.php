@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\Handlers;
+namespace Hibla\EventLoop\Handlers;
 
 /**
  * Handles tracking of activity timestamps and computes idle status

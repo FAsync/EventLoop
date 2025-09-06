@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\Interfaces;
+namespace Hibla\EventLoop\Interfaces;
 
 /**
  * Core event loop interface for managing asynchronous operations.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\ValueObjects;
+namespace Hibla\EventLoop\ValueObjects;
 
 /**
  * Stream watcher for monitoring stream resource readiness.

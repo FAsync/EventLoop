@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\Handlers;
+namespace Hibla\EventLoop\Handlers;
 
 /**
  * Handles scheduling of tick and deferred callbacks in batches.

@@ -1,10 +1,10 @@
 <?php
 
-namespace Fasync\EventLoop\IOHandlers\File;
+namespace Hibla\EventLoop\IOHandlers\File;
 
 use InvalidArgumentException;
-use Fasync\EventLoop\EventLoop;
-use Fasync\EventLoop\ValueObjects\FileOperation;
+use Hibla\EventLoop\EventLoop;
+use Hibla\EventLoop\ValueObjects\FileOperation;
 use RuntimeException;
 use Throwable;
 

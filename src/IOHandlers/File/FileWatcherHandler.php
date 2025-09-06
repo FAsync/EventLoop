@@ -1,8 +1,8 @@
 <?php
 
-namespace Fasync\EventLoop\IOHandlers\File;
+namespace Hibla\EventLoop\IOHandlers\File;
 
-use Fasync\EventLoop\ValueObjects\FileWatcher;
+use Hibla\EventLoop\ValueObjects\FileWatcher;
 
 /**
  * Manages file watchers: creation, polling, and removal.

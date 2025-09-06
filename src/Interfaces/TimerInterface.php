@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\Interfaces;
+namespace Hibla\EventLoop\Interfaces;
 
 /**
  * Represents a scheduled timer in the event loop.

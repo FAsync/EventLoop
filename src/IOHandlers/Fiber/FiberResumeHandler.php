@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\IOHandlers\Fiber;
+namespace Hibla\EventLoop\IOHandlers\Fiber;
 
 /**
  * Handles fiber resumption operations.

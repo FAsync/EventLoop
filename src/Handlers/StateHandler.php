@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\Handlers;
+namespace Hibla\EventLoop\Handlers;
 
 /**
  * Manages the running state of the event loop with enhanced shutdown capabilities.

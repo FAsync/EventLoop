@@ -1,11 +1,11 @@
 {
-    "name": "fasync/event-loop",
-    "description": "Fiber native eventloop for building block for heart of fasync libraries",
+    "name": "hiblaphp/event-loop",
+    "description": "Fiber native eventloop for building block for heart of hiblaphp libraries",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Fasync\\EventLoop\\": "src/"
+            "Hibla\\EventLoop\\": "src/"
         }
     },
     "autoload-dev": {

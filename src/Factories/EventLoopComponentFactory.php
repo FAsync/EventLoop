@@ -1,18 +1,18 @@
 <?php
 
-namespace Fasync\EventLoop\Factories;
+namespace Hibla\EventLoop\Factories;
 
-use Fasync\EventLoop\Detectors\UvDetector;
-use Fasync\EventLoop\Handlers\SleepHandler;
-use Fasync\EventLoop\Handlers\UvWorkHandler;
-use Fasync\EventLoop\Handlers\WorkHandler;
-use Fasync\EventLoop\Handlers\UvSleepHandler;
-use Fasync\EventLoop\Managers\SocketManager;
-use Fasync\EventLoop\Managers\StreamManager;
-use Fasync\EventLoop\Managers\TimerManager;
-use Fasync\EventLoop\Managers\Uv\UvSocketManager;
-use Fasync\EventLoop\Managers\Uv\UvStreamManager;
-use Fasync\EventLoop\Managers\Uv\UvTimerManager;
+use Hibla\EventLoop\Detectors\UvDetector;
+use Hibla\EventLoop\Handlers\SleepHandler;
+use Hibla\EventLoop\Handlers\UvWorkHandler;
+use Hibla\EventLoop\Handlers\WorkHandler;
+use Hibla\EventLoop\Handlers\UvSleepHandler;
+use Hibla\EventLoop\Managers\SocketManager;
+use Hibla\EventLoop\Managers\StreamManager;
+use Hibla\EventLoop\Managers\TimerManager;
+use Hibla\EventLoop\Managers\Uv\UvSocketManager;
+use Hibla\EventLoop\Managers\Uv\UvStreamManager;
+use Hibla\EventLoop\Managers\Uv\UvTimerManager;
 
 /**
  * Factory for creating UV-aware or fallback components

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\ValueObjects;
+namespace Hibla\EventLoop\ValueObjects;
 
 /**
  * Socket value object representing socket connection data.

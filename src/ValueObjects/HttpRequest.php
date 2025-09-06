@@ -1,8 +1,8 @@
 <?php
 
-namespace Fasync\EventLoop\ValueObjects;
+namespace Hibla\EventLoop\ValueObjects;
 
-use Fasync\EventLoop\Interfaces\AsyncHttpRequestInterface;
+use Hibla\EventLoop\Interfaces\AsyncHttpRequestInterface;
 
 /**
  * HTTP request implementation for asynchronous processing.

@@ -1,8 +1,8 @@
 <?php
 
-namespace Fasync\EventLoop\IOHandlers\Http;
+namespace Hibla\EventLoop\IOHandlers\Http;
 
-use Fasync\EventLoop\ValueObjects\HttpRequest;
+use Hibla\EventLoop\ValueObjects\HttpRequest;
 
 /**
  * Handles HTTP request creation and multi-handle management.

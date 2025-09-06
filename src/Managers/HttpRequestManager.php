@@ -1,12 +1,12 @@
 <?php
 
-namespace Fasync\EventLoop\Managers;
+namespace Hibla\EventLoop\Managers;
 
 use CurlMultiHandle;
-use Fasync\EventLoop\IOHandlers\Http\CurlMultiHandler;
-use Fasync\EventLoop\IOHandlers\Http\HttpRequestHandler;
-use Fasync\EventLoop\IOHandlers\Http\HttpResponseHandler;
-use Fasync\EventLoop\ValueObjects\HttpRequest;
+use Hibla\EventLoop\IOHandlers\Http\CurlMultiHandler;
+use Hibla\EventLoop\IOHandlers\Http\HttpRequestHandler;
+use Hibla\EventLoop\IOHandlers\Http\HttpResponseHandler;
+use Hibla\EventLoop\ValueObjects\HttpRequest;
 
 /**
  * Manages the entire lifecycle of HTTP requests for the event loop.

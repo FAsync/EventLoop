@@ -1,8 +1,8 @@
 <?php
 
-namespace Fasync\EventLoop\IOHandlers\Stream;
+namespace Hibla\EventLoop\IOHandlers\Stream;
 
-use Fasync\EventLoop\ValueObjects\StreamWatcher;
+use Hibla\EventLoop\ValueObjects\StreamWatcher;
 
 final readonly class StreamSelectHandler
 {

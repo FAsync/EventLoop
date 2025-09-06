@@ -1,8 +1,8 @@
 <?php
 
-namespace Fasync\EventLoop\Managers\Uv;
+namespace Hibla\EventLoop\Managers\Uv;
 
-use Fasync\EventLoop\Managers\SocketManager;
+use Hibla\EventLoop\Managers\SocketManager;
 
 /**
  * UV-based socket manager using libuv for efficient socket I/O

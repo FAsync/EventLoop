@@ -1,11 +1,11 @@
 <?php
 
-namespace Fasync\EventLoop\Handlers;
+namespace Hibla\EventLoop\Handlers;
 
-use Fasync\EventLoop\Handlers\TickHandler;
-use Fasync\EventLoop\Managers\FiberManager;
-use Fasync\EventLoop\Managers\FileManager;
-use Fasync\EventLoop\Managers\HttpRequestManager;
+use Hibla\EventLoop\Handlers\TickHandler;
+use Hibla\EventLoop\Managers\FiberManager;
+use Hibla\EventLoop\Managers\FileManager;
+use Hibla\EventLoop\Managers\HttpRequestManager;
 
 /**
  * UV-aware work handler that integrates with libuv event loop

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\ValueObjects;
+namespace Hibla\EventLoop\ValueObjects;
 
 class FileOperation
 {

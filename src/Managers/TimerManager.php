@@ -1,10 +1,10 @@
 <?php
 
-namespace Fasync\EventLoop\Managers;
+namespace Hibla\EventLoop\Managers;
 
-use Fasync\EventLoop\IOHandlers\Timer\TimerExecutionHandler;
-use Fasync\EventLoop\IOHandlers\Timer\TimerScheduleHandler;
-use Fasync\EventLoop\ValueObjects\Timer;
+use Hibla\EventLoop\IOHandlers\Timer\TimerExecutionHandler;
+use Hibla\EventLoop\IOHandlers\Timer\TimerScheduleHandler;
+use Hibla\EventLoop\ValueObjects\Timer;
 
 /**
  * Manages the lifecycle of all timers for the event loop.

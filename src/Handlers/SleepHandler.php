@@ -1,9 +1,9 @@
 <?php
 
-namespace Fasync\EventLoop\Handlers;
+namespace Hibla\EventLoop\Handlers;
 
-use Fasync\EventLoop\Managers\FiberManager;
-use Fasync\EventLoop\Managers\TimerManager;
+use Hibla\EventLoop\Managers\FiberManager;
+use Hibla\EventLoop\Managers\TimerManager;
 
 /**
  * Decides when the event loop should sleep to conserve CPU,

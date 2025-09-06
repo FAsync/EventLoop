@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\Managers;
+namespace Hibla\EventLoop\Managers;
 
 /**
  * Manages socket watchers for an event loop using stream_select.

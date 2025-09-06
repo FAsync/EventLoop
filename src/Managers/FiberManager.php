@@ -1,11 +1,11 @@
 <?php
 
-namespace Fasync\EventLoop\Managers;
+namespace Hibla\EventLoop\Managers;
 
 use Fiber;
-use Fasync\EventLoop\IOHandlers\Fiber\FiberResumeHandler;
-use Fasync\EventLoop\IOHandlers\Fiber\FiberStartHandler;
-use Fasync\EventLoop\IOHandlers\Fiber\FiberStateHandler;
+use Hibla\EventLoop\IOHandlers\Fiber\FiberResumeHandler;
+use Hibla\EventLoop\IOHandlers\Fiber\FiberStartHandler;
+use Hibla\EventLoop\IOHandlers\Fiber\FiberStateHandler;
 
 /**
  * Manages the lifecycle of all fibers within the event loop.

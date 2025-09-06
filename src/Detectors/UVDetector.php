@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\Detectors;
+namespace Hibla\EventLoop\Detectors;
 
 /**
  * Detects availability of ext-uv and provides fallback mechanisms

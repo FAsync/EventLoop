@@ -1,9 +1,9 @@
 <?php
 
-namespace Fasync\EventLoop\Managers\Uv;
+namespace Hibla\EventLoop\Managers\Uv;
 
-use Fasync\EventLoop\Managers\StreamManager;
-use Fasync\EventLoop\ValueObjects\StreamWatcher;
+use Hibla\EventLoop\Managers\StreamManager;
+use Hibla\EventLoop\ValueObjects\StreamWatcher;
 
 /**
  * UV-based stream manager using libuv for efficient I/O polling

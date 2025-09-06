@@ -1,6 +1,6 @@
 <?php
 
-namespace Fasync\EventLoop\Interfaces;
+namespace Hibla\EventLoop\Interfaces;
 
 /**
  * Represents an HTTP request within the async system.

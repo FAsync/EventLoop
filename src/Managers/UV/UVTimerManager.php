@@ -1,8 +1,8 @@
 <?php
 
-namespace Fasync\EventLoop\Managers\Uv;
+namespace Hibla\EventLoop\Managers\Uv;
 
-use Fasync\EventLoop\Managers\TimerManager;
+use Hibla\EventLoop\Managers\TimerManager;
 
 final class UvTimerManager extends TimerManager
 {

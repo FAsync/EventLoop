@@ -1,13 +1,13 @@
 <?php
 
-namespace Fasync\EventLoop\Handlers;
+namespace Hibla\EventLoop\Handlers;
 
-use Fasync\EventLoop\Managers\FiberManager;
-use Fasync\EventLoop\Managers\FileManager;
-use Fasync\EventLoop\Managers\HttpRequestManager;
-use Fasync\EventLoop\Managers\SocketManager;
-use Fasync\EventLoop\Managers\StreamManager;
-use Fasync\EventLoop\Managers\TimerManager;
+use Hibla\EventLoop\Managers\FiberManager;
+use Hibla\EventLoop\Managers\FileManager;
+use Hibla\EventLoop\Managers\HttpRequestManager;
+use Hibla\EventLoop\Managers\SocketManager;
+use Hibla\EventLoop\Managers\StreamManager;
+use Hibla\EventLoop\Managers\TimerManager;
 
 /**
  * Orchestrates all units of work in the event loop:
