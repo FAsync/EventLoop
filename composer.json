@@ -22,7 +22,9 @@
         "php": "^8.2"
     },
     "require-dev": {
-        "pestphp/pest": "^4.0"
+        "pestphp/pest": "^4.0",
+        "revolt/event-loop": "^1.0",
+        "react/event-loop": "^1.5"
     },
     "config": {
         "allow-plugins": {

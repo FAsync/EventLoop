@@ -216,13 +216,15 @@ class TimerManager
         }
 
         $executed = $this->executionHandler->executeReadyTimers($regularTimers, $currentTime);
+
         if ($executed) {
-            $this->timers = array_merge($this->timers, $regularTimers);
+            $periodicTimers = array_filter($this->timers, fn($timer) => $timer instanceof PeriodicTimer);
+            $this->timers = $periodicTimers + $regularTimers;
         }
 
         return $executed;
     }
-
+    
     /**
      * Process periodic timers and remove completed ones.
      *
