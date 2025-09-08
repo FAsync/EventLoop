@@ -4,6 +4,7 @@ namespace Hibla\EventLoop\Managers;
 
 use Hibla\EventLoop\IOHandlers\Timer\TimerExecutionHandler;
 use Hibla\EventLoop\IOHandlers\Timer\TimerScheduleHandler;
+use Hibla\EventLoop\ValueObjects\PeriodicTimer;
 use Hibla\EventLoop\ValueObjects\Timer;
 
 /**
@@ -17,7 +18,7 @@ class TimerManager
     /**
      * A map of active timers, keyed by their unique string ID.
      *
-     * @var array<string, Timer>
+     * @var array<string, Timer|PeriodicTimer>
      */
     private array $timers = [];
 
@@ -43,6 +44,22 @@ class TimerManager
         $this->timers[$timer->getId()] = $timer;
 
         return $timer->getId();
+    }
+
+    /**
+     * Adds a new periodic timer to the manager.
+     *
+     * @param  float  $interval  The interval in seconds between executions.
+     * @param  callable  $callback  The callback to execute on each interval.
+     * @param  int|null  $maxExecutions  Maximum executions (null for infinite).
+     * @return string The unique ID of the created periodic timer.
+     */
+    public function addPeriodicTimer(float $interval, callable $callback, ?int $maxExecutions = null): string
+    {
+        $periodicTimer = new PeriodicTimer($interval, $callback, $maxExecutions);
+        $this->timers[$periodicTimer->getId()] = $periodicTimer;
+
+        return $periodicTimer->getId();
     }
 
     /**
@@ -77,7 +94,7 @@ class TimerManager
      * Processes all timers and executes any that are ready.
      *
      * This method should be called on each tick of the event loop. It delegates
-     * to the execution handler, which will modify the timers array by reference.
+     * to the execution handler for regular timers, and handles periodic timers directly.
      *
      * @return bool True if at least one timer was executed.
      */
@@ -85,7 +102,10 @@ class TimerManager
     {
         $currentTime = microtime(true);
 
-        return $this->executionHandler->executeReadyTimers($this->timers, $currentTime);
+        $regularExecuted = $this->processRegularTimers($currentTime);
+        $periodicExecuted = $this->processPeriodicTimers($currentTime);
+
+        return $regularExecuted || $periodicExecuted;
     }
 
     /**
@@ -119,5 +139,122 @@ class TimerManager
     public function clearAllTimers(): void
     {
         $this->timers = [];
+    }
+
+    /**
+     * Get statistics about timers (backward compatible addition).
+     * 
+     * @return array<string, mixed>
+     */
+    public function getTimerStats(): array
+    {
+        $regularCount = 0;
+        $periodicCount = 0;
+        $totalExecutions = 0;
+
+        foreach ($this->timers as $timer) {
+            if ($timer instanceof PeriodicTimer) {
+                $periodicCount++;
+                $totalExecutions += $timer->getExecutionCount();
+            } else {
+                $regularCount++;
+            }
+        }
+
+        return [
+            'regular_timers' => $regularCount,
+            'periodic_timers' => $periodicCount,
+            'total_timers' => count($this->timers),
+            'total_periodic_executions' => $totalExecutions,
+        ];
+    }
+
+    /**
+     * Get information about a specific timer (backward compatible addition).
+     *
+     * @param string $timerId The timer ID to get info for
+     * @return array<string, mixed>|null Timer information or null if not found
+     */
+    public function getTimerInfo(string $timerId): ?array
+    {
+        if (!isset($this->timers[$timerId])) {
+            return null;
+        }
+
+        $timer = $this->timers[$timerId];
+        $baseInfo = [
+            'id' => $timer->getId(),
+            'execute_at' => $timer->getExecuteAt(),
+            'is_ready' => $timer->isReady(microtime(true)),
+        ];
+
+        if ($timer instanceof PeriodicTimer) {
+            $baseInfo['type'] = 'periodic';
+            $baseInfo['interval'] = $timer->getInterval();
+            $baseInfo['execution_count'] = $timer->getExecutionCount();
+            $baseInfo['remaining_executions'] = $timer->getRemainingExecutions();
+            $baseInfo['should_continue'] = $timer->shouldContinue();
+        } else {
+            $baseInfo['type'] = 'regular';
+        }
+
+        return $baseInfo;
+    }
+
+    /**
+     * Process regular (one-time) timers using the existing execution handler.
+     *
+     * @param float $currentTime Current timestamp
+     * @return bool True if any regular timers were executed
+     */
+    private function processRegularTimers(float $currentTime): bool
+    {
+        $regularTimers = array_filter($this->timers, fn($timer) => !$timer instanceof PeriodicTimer);
+
+        if (empty($regularTimers)) {
+            return false;
+        }
+
+        $executed = $this->executionHandler->executeReadyTimers($regularTimers, $currentTime);
+        if ($executed) {
+            $this->timers = array_merge($this->timers, $regularTimers);
+        }
+
+        return $executed;
+    }
+
+    /**
+     * Process periodic timers and remove completed ones.
+     *
+     * @param float $currentTime Current timestamp
+     * @return bool True if any periodic timers were executed
+     */
+    private function processPeriodicTimers(float $currentTime): bool
+    {
+        $hasExecutedAny = false;
+        $timersToRemove = [];
+
+        foreach ($this->timers as $timerId => $timer) {
+            if (!$timer instanceof PeriodicTimer) {
+                continue;
+            }
+
+            if ($timer->isReady($currentTime)) {
+                $timer->execute();
+                $hasExecutedAny = true;
+
+                // Remove completed periodic timers
+                if (!$timer->shouldContinue()) {
+                    $timersToRemove[] = $timerId;
+                }
+            }
+        }
+
+        // Clean up completed periodic timers
+        foreach ($timersToRemove as $timerId) {
+            unset($this->timers[$timerId]);
+        }
+
+        return $hasExecutedAny;
     }
 }

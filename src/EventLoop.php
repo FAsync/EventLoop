@@ -134,6 +134,16 @@ class EventLoop implements EventLoopInterface
     }
 
     /**
+     * Get the timer manager.
+     *
+     * @return TimerManager The timer manager instance
+     */
+    public function getTimerManager(): TimerManager
+    {
+        return $this->timerManager;
+    }
+
+    /**
      * Get the singleton instance of the event loop.
      *
      * Creates a new instance if one doesn't exist, otherwise returns
@@ -160,6 +170,19 @@ class EventLoop implements EventLoopInterface
     public function addTimer(float $delay, callable $callback): string
     {
         return $this->timerManager->addTimer($delay, $callback);
+    }
+
+    /**
+     * Schedule a periodic timer that executes repeatedly at specified intervals.
+     *
+     * @param  float  $interval  Interval in seconds between executions
+     * @param  callable  $callback  Function to execute on each interval
+     * @param  int|null  $maxExecutions  Maximum number of executions (null for infinite)
+     * @return string Unique identifier for the periodic timer
+     */
+    public function addPeriodicTimer(float $interval, callable $callback, ?int $maxExecutions = null): string
+    {
+        return $this->timerManager->addPeriodicTimer($interval, $callback, $maxExecutions);
     }
 
     public function hasTimers(): bool
@@ -482,3 +505,4 @@ class EventLoop implements EventLoopInterface
         self::$instance = null;
     }
 }
+

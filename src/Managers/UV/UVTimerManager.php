@@ -9,6 +9,7 @@ final class UvTimerManager extends TimerManager
     private $uvLoop;
     private array $uvTimers = [];
     private array $timerCallbacks = [];
+    private array $periodicTimers = [];
 
     public function __construct($uvLoop = null)
     {
@@ -47,6 +48,46 @@ final class UvTimerManager extends TimerManager
         return $timerId;
     }
 
+    public function addPeriodicTimer(float $interval, callable $callback, ?int $maxExecutions = null): string
+    {
+        $timerId = uniqid('uv_periodic_timer_', true);
+        $executionCount = 0;
+
+        $this->timerCallbacks[$timerId] = $callback;
+        $this->periodicTimers[$timerId] = [
+            'max_executions' => $maxExecutions,
+            'execution_count' => 0,
+            'interval' => $interval,
+        ];
+
+        $uvTimer = \uv_timer_init($this->uvLoop);
+        $this->uvTimers[$timerId] = $uvTimer;
+
+        $intervalMs = (int) round($interval * 1000);
+
+        if ($interval > 0 && $intervalMs === 0) {
+            $intervalMs = 1;
+        }
+
+        \uv_timer_start($uvTimer, $intervalMs, $intervalMs, function ($timer) use ($callback, $timerId, $maxExecutions, &$executionCount) {
+            try {
+                $executionCount++;
+                $this->periodicTimers[$timerId]['execution_count'] = $executionCount;
+
+                $callback();
+
+                if ($maxExecutions !== null && $executionCount >= $maxExecutions) {
+                    $this->cancelTimer($timerId);
+                }
+            } catch (\Throwable $e) {
+                error_log("UV Periodic Timer callback error: " . $e->getMessage());
+                $this->cancelTimer($timerId);
+            }
+        });
+
+        return $timerId;
+    }
+
     public function cancelTimer(string $timerId): bool
     {
         if (isset($this->uvTimers[$timerId])) {
@@ -55,6 +96,7 @@ final class UvTimerManager extends TimerManager
             \uv_close($uvTimer);
             unset($this->uvTimers[$timerId]);
             unset($this->timerCallbacks[$timerId]);
+            unset($this->periodicTimers[$timerId]);
             return true;
         }
 
@@ -84,6 +126,7 @@ final class UvTimerManager extends TimerManager
         }
         $this->uvTimers = [];
         $this->timerCallbacks = [];
+        $this->periodicTimers = [];
 
         parent::clearAllTimers();
     }
@@ -95,5 +138,61 @@ final class UvTimerManager extends TimerManager
         }
 
         return parent::getNextTimerDelay();
+    }
+
+    public function getTimerStats(): array
+    {
+        $parentStats = parent::getTimerStats();
+
+        $uvRegularCount = 0;
+        $uvPeriodicCount = 0;
+        $uvTotalExecutions = 0;
+
+        foreach ($this->uvTimers as $timerId => $timer) {
+            if (isset($this->periodicTimers[$timerId])) {
+                $uvPeriodicCount++;
+                $uvTotalExecutions += $this->periodicTimers[$timerId]['execution_count'];
+            } else {
+                $uvRegularCount++;
+            }
+        }
+
+        return [
+            'regular_timers' => $parentStats['regular_timers'] + $uvRegularCount,
+            'periodic_timers' => $parentStats['periodic_timers'] + $uvPeriodicCount,
+            'total_timers' => $parentStats['total_timers'] + count($this->uvTimers),
+            'total_periodic_executions' => $parentStats['total_periodic_executions'] + $uvTotalExecutions,
+            'uv_timers' => count($this->uvTimers),
+            'uv_regular_timers' => $uvRegularCount,
+            'uv_periodic_timers' => $uvPeriodicCount,
+        ];
+    }
+
+    public function getTimerInfo(string $timerId): ?array
+    {
+        if (isset($this->uvTimers[$timerId])) {
+            $baseInfo = [
+                'id' => $timerId,
+                'backend' => 'uv',
+                'is_active' => true,
+            ];
+
+            if (isset($this->periodicTimers[$timerId])) {
+                $periodicInfo = $this->periodicTimers[$timerId];
+                $baseInfo['type'] = 'periodic';
+                $baseInfo['interval'] = $periodicInfo['interval'];
+                $baseInfo['execution_count'] = $periodicInfo['execution_count'];
+                $baseInfo['max_executions'] = $periodicInfo['max_executions'];
+                $baseInfo['remaining_executions'] = $periodicInfo['max_executions'] !== null
+                    ? max(0, $periodicInfo['max_executions'] - $periodicInfo['execution_count'])
+                    : null;
+            } else {
+                $baseInfo['type'] = 'regular';
+            }
+
+            return $baseInfo;
+        }
+
+        return parent::getTimerInfo($timerId);
     }
 }
