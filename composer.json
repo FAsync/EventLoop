@@ -23,7 +23,8 @@
     ],
     "require": {
         "php": "^8.2",
-        "rcalicdan/defer": "^1.0"
+        "rcalicdan/defer": "^1.0",
+        "vlucas/phpdotenv": "^5.6"
     },
     "require-dev": {
         "pestphp/pest": "^4.0",
