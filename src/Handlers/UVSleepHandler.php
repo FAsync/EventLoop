@@ -1,6 +1,6 @@
 <?php
 
-namespace Hibla\EventLoop\Handlers\UV;
+namespace Hibla\EventLoop\Handlers;
 
 use Hibla\EventLoop\Handlers\SleepHandler;
 
