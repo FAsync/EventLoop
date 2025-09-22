@@ -1,10 +1,10 @@
 <?php
 
-namespace Hibla\EventLoop\Managers\Uv;
+namespace Hibla\EventLoop\Managers\UV;
 
 use Hibla\EventLoop\Managers\TimerManager;
 
-final class UvTimerManager extends TimerManager
+final class UVTimerManager extends TimerManager
 {
     private $uvLoop;
     private array $uvTimers = [];
@@ -35,7 +35,7 @@ final class UvTimerManager extends TimerManager
             try {
                 $callback();
             } catch (\Throwable $e) {
-                error_log("UV Timer callback error: " . $e->getMessage());
+                error_log('UV Timer callback error: '.$e->getMessage());
             } finally {
                 if (isset($this->uvTimers[$timerId])) {
                     \uv_close($timer);
@@ -80,7 +80,7 @@ final class UvTimerManager extends TimerManager
                     $this->cancelTimer($timerId);
                 }
             } catch (\Throwable $e) {
-                error_log("UV Periodic Timer callback error: " . $e->getMessage());
+                error_log('UV Periodic Timer callback error: '.$e->getMessage());
                 $this->cancelTimer($timerId);
             }
         });
@@ -97,6 +97,7 @@ final class UvTimerManager extends TimerManager
             unset($this->uvTimers[$timerId]);
             unset($this->timerCallbacks[$timerId]);
             unset($this->periodicTimers[$timerId]);
+
             return true;
         }
 
@@ -110,12 +111,12 @@ final class UvTimerManager extends TimerManager
 
     public function processTimers(): bool
     {
-        return !empty($this->uvTimers) || parent::processTimers();
+        return ! empty($this->uvTimers) || parent::processTimers();
     }
 
     public function hasTimers(): bool
     {
-        return !empty($this->uvTimers) || parent::hasTimers();
+        return ! empty($this->uvTimers) || parent::hasTimers();
     }
 
     public function clearAllTimers(): void
@@ -133,7 +134,7 @@ final class UvTimerManager extends TimerManager
 
     public function getNextTimerDelay(): ?float
     {
-        if (!empty($this->uvTimers)) {
+        if (! empty($this->uvTimers)) {
             return null;
         }
 

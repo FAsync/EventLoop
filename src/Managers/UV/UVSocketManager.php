@@ -1,13 +1,13 @@
 <?php
 
-namespace Hibla\EventLoop\Managers\Uv;
+namespace Hibla\EventLoop\Managers\UV;
 
 use Hibla\EventLoop\Managers\SocketManager;
 
 /**
  * UV-based socket manager using libuv for efficient socket I/O
  */
-final class UvSocketManager extends SocketManager
+final class UVSocketManager extends SocketManager
 {
     private $uvLoop;
     private array $uvTcpHandles = [];
@@ -24,7 +24,7 @@ final class UvSocketManager extends SocketManager
         if ($this->addUvReadWatcher($socket, $callback)) {
             return;
         }
-        
+
         parent::addReadWatcher($socket, $callback);
     }
 
@@ -33,82 +33,88 @@ final class UvSocketManager extends SocketManager
         if ($this->addUvWriteWatcher($socket, $callback)) {
             return;
         }
-        
+
         parent::addWriteWatcher($socket, $callback);
     }
 
     private function addUvReadWatcher(mixed $socket, callable $callback): bool
     {
-        if (!is_resource($socket)) {
+        if (! is_resource($socket)) {
             return false;
         }
 
         try {
-            $socketId = (int)$socket;
+            $socketId = (int) $socket;
             $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
-            
-            \uv_poll_start($uvPoll, \UV::READABLE, function($poll, $status, $events) use ($callback, $socketId) {
+
+            \uv_poll_start($uvPoll, \UV::READABLE, function ($poll, $status, $events) use ($callback, $socketId) {
                 if ($status < 0) {
-                    error_log("UV read poll error: " . \uv_strerror($status));
+                    error_log('UV read poll error: '.\uv_strerror($status));
+
                     return;
                 }
-                
+
                 $this->hasProcessedWork = true;
-                
+
                 try {
                     $callback();
                 } catch (\Throwable $e) {
-                    error_log("UV read callback error: " . $e->getMessage());
+                    error_log('UV read callback error: '.$e->getMessage());
                 }
-                
+
                 \uv_poll_stop($poll);
                 \uv_close($poll);
                 unset($this->uvTcpHandles[$socketId]);
             });
-            
+
             $this->uvTcpHandles[$socketId] = $uvPoll;
+
             return true;
-            
+
         } catch (\Throwable $e) {
-            error_log("Failed to create UV read watcher: " . $e->getMessage());
+            error_log('Failed to create UV read watcher: '.$e->getMessage());
+
             return false;
         }
     }
 
     private function addUvWriteWatcher(mixed $socket, callable $callback): bool
     {
-        if (!is_resource($socket)) {
+        if (! is_resource($socket)) {
             return false;
         }
 
         try {
-            $socketId = (int)$socket;
+            $socketId = (int) $socket;
             $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
-            
-            \uv_poll_start($uvPoll, \UV::WRITABLE, function($poll, $status, $events) use ($callback, $socketId) {
+
+            \uv_poll_start($uvPoll, \UV::WRITABLE, function ($poll, $status, $events) use ($callback, $socketId) {
                 if ($status < 0) {
-                    error_log("UV write poll error: " . \uv_strerror($status));
+                    error_log('UV write poll error: '.\uv_strerror($status));
+
                     return;
                 }
-                
+
                 $this->hasProcessedWork = true;
-                
+
                 try {
                     $callback();
                 } catch (\Throwable $e) {
-                    error_log("UV write callback error: " . $e->getMessage());
+                    error_log('UV write callback error: '.$e->getMessage());
                 }
-                
+
                 \uv_poll_stop($poll);
                 \uv_close($poll);
                 unset($this->uvTcpHandles[$socketId]);
             });
-            
+
             $this->uvTcpHandles[$socketId] = $uvPoll;
+
             return true;
-            
+
         } catch (\Throwable $e) {
-            error_log("Failed to create UV write watcher: " . $e->getMessage());
+            error_log('Failed to create UV write watcher: '.$e->getMessage());
+
             return false;
         }
     }
@@ -120,16 +126,16 @@ final class UvSocketManager extends SocketManager
     {
         $uvWorkDone = $this->hasProcessedWork;
         $this->hasProcessedWork = false;
-        
+
         // Also process parent sockets for fallback cases
         $parentWorkDone = parent::processSockets();
-        
+
         return $uvWorkDone || $parentWorkDone;
     }
 
     public function hasWatchers(): bool
     {
-        return !empty($this->uvTcpHandles) || !empty($this->uvUdpHandles) || parent::hasWatchers();
+        return ! empty($this->uvTcpHandles) || ! empty($this->uvUdpHandles) || parent::hasWatchers();
     }
 
     public function clearAllWatchers(): void
@@ -141,40 +147,40 @@ final class UvSocketManager extends SocketManager
         foreach ($this->uvUdpHandles as $handle) {
             \uv_close($handle);
         }
-        
+
         $this->uvTcpHandles = [];
         $this->uvUdpHandles = [];
         $this->hasProcessedWork = false;
-        
+
         parent::clearAllWatchers();
     }
 
     // Delegate removal methods to parent for consistency
     public function removeReadWatcher(mixed $socket): void
     {
-        $socketId = (int)$socket;
-        
+        $socketId = (int) $socket;
+
         if (isset($this->uvTcpHandles[$socketId])) {
             $handle = $this->uvTcpHandles[$socketId];
             \uv_poll_stop($handle);
             \uv_close($handle);
             unset($this->uvTcpHandles[$socketId]);
         }
-        
+
         parent::removeReadWatcher($socket);
     }
 
     public function removeWriteWatcher(mixed $socket): void
     {
-        $socketId = (int)$socket;
-        
+        $socketId = (int) $socket;
+
         if (isset($this->uvTcpHandles[$socketId])) {
             $handle = $this->uvTcpHandles[$socketId];
             \uv_poll_stop($handle);
             \uv_close($handle);
             unset($this->uvTcpHandles[$socketId]);
         }
-        
+
         parent::removeWriteWatcher($socket);
     }
 

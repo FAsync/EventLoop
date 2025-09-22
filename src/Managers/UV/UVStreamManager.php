@@ -1,6 +1,6 @@
 <?php
 
-namespace Hibla\EventLoop\Managers\Uv;
+namespace Hibla\EventLoop\Managers\UV;
 
 use Hibla\EventLoop\Managers\StreamManager;
 use Hibla\EventLoop\ValueObjects\StreamWatcher;
@@ -8,7 +8,7 @@ use Hibla\EventLoop\ValueObjects\StreamWatcher;
 /**
  * UV-based stream manager using libuv for efficient I/O polling
  */
-final class UvStreamManager extends StreamManager
+final class UVStreamManager extends StreamManager
 {
     private $uvLoop;
     private array $uvPolls = [];
@@ -22,35 +22,36 @@ final class UvStreamManager extends StreamManager
     public function addStreamWatcher($stream, callable $callback, string $type = StreamWatcher::TYPE_READ): string
     {
         $watcherId = $this->generateWatcherId();
-        
+
         $socket = is_resource($stream) ? $stream : null;
-        if (!$socket) {
-            throw new \InvalidArgumentException("Invalid stream resource");
+        if (! $socket) {
+            throw new \InvalidArgumentException('Invalid stream resource');
         }
-        
+
         $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
-        
+
         $this->uvPolls[$watcherId] = $uvPoll;
-        
-        $events = match($type) {
+
+        $events = match ($type) {
             StreamWatcher::TYPE_READ => \UV::READABLE,
             StreamWatcher::TYPE_WRITE => \UV::WRITABLE,
             default => \UV::READABLE
         };
-        
-        \uv_poll_start($uvPoll, $events, function($poll, $status, $events) use ($callback, $stream, $type) {
+
+        \uv_poll_start($uvPoll, $events, function ($poll, $status, $events) use ($callback, $stream, $type) {
             if ($status < 0) {
-                error_log("UV poll error: " . \uv_strerror($status));
+                error_log('UV poll error: '.\uv_strerror($status));
+
                 return;
             }
-            
+
             try {
                 $callback($stream, $type);
             } catch (\Throwable $e) {
-                error_log("UV stream callback error: " . $e->getMessage());
+                error_log('UV stream callback error: '.$e->getMessage());
             }
         });
-        
+
         return parent::addStreamWatcher($stream, $callback, $type);
     }
 
@@ -62,7 +63,7 @@ final class UvStreamManager extends StreamManager
             \uv_close($uvPoll);
             unset($this->uvPolls[$watcherId]);
         }
-        
+
         return parent::removeStreamWatcher($watcherId);
     }
 
@@ -84,13 +85,13 @@ final class UvStreamManager extends StreamManager
             \uv_close($uvPoll);
         }
         $this->uvPolls = [];
-        
+
         parent::clearAllWatchers();
     }
 
     public function hasWatchers(): bool
     {
-        return !empty($this->uvPolls) || parent::hasWatchers();
+        return ! empty($this->uvPolls) || parent::hasWatchers();
     }
 
     private function generateWatcherId(): string

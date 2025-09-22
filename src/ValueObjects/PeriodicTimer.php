@@ -57,7 +57,7 @@ class PeriodicTimer implements TimerInterface
     {
         $this->executionCount++;
         ($this->callback)();
-        
+
         // Schedule next execution if we should continue
         if ($this->shouldContinue()) {
             $this->executeAt = microtime(true) + $this->interval;
@@ -79,7 +79,7 @@ class PeriodicTimer implements TimerInterface
         if ($this->maxExecutions === null) {
             return null;
         }
-        
+
         return max(0, $this->maxExecutions - $this->executionCount);
     }
 

@@ -6,10 +6,11 @@ use Hibla\EventLoop\ValueObjects\Timer;
 use Throwable;
 
 /**
- * Handles timer execution and readiness detection.
+ * Handles timer execution and readiness detection for both regular and periodic timers.
  *
  * This class manages the execution of timers that are ready to run,
- * filtering timers by readiness, and executing their callbacks.
+ * filtering timers by readiness, and executing their callbacks with
+ * appropriate lifecycle management.
  */
 final readonly class TimerExecutionHandler
 {
@@ -32,7 +33,6 @@ final readonly class TimerExecutionHandler
             if ($timer->isReady($currentTime)) {
                 $this->executeTimer($timer);
 
-                // Remove the timer from the array after it has been executed.
                 unset($timers[$timerId]);
                 $processed = true;
             }

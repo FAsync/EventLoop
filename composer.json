@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "Hibla\\EventLoop\\": "src/"
-        }
+        },
+        "files": [
+            "src/global-event-loop.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -19,7 +22,8 @@
         }
     ],
     "require": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "rcalicdan/defer": "^1.0"
     },
     "require-dev": {
         "pestphp/pest": "^4.0",

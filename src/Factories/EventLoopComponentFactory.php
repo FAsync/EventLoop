@@ -2,17 +2,17 @@
 
 namespace Hibla\EventLoop\Factories;
 
-use Hibla\EventLoop\Detectors\UvDetector;
+use Hibla\EventLoop\Detectors\UVDetector;
 use Hibla\EventLoop\Handlers\SleepHandler;
-use Hibla\EventLoop\Handlers\UvWorkHandler;
+use Hibla\EventLoop\Handlers\UVWorkHandler;
 use Hibla\EventLoop\Handlers\WorkHandler;
-use Hibla\EventLoop\Handlers\UvSleepHandler;
+use Hibla\EventLoop\IOHandlers\Uv\UVSleepHandler;
 use Hibla\EventLoop\Managers\SocketManager;
 use Hibla\EventLoop\Managers\StreamManager;
 use Hibla\EventLoop\Managers\TimerManager;
-use Hibla\EventLoop\Managers\Uv\UvSocketManager;
-use Hibla\EventLoop\Managers\Uv\UvStreamManager;
-use Hibla\EventLoop\Managers\Uv\UvTimerManager;
+use Hibla\EventLoop\Managers\UV\UVSocketManager;
+use Hibla\EventLoop\Managers\UV\UVStreamManager;
+use Hibla\EventLoop\Managers\UV\UVTimerManager;
 
 /**
  * Factory for creating UV-aware or fallback components
@@ -23,29 +23,29 @@ final class EventLoopComponentFactory
 
     public static function createTimerManager(): TimerManager
     {
-        if (UvDetector::isUvAvailable()) {
-            return new UvTimerManager(self::getUvLoop());
+        if (UVDetector::isUvAvailable()) {
+            return new UVTimerManager(self::getUvLoop());
         }
-        
-        return new TimerManager();
+
+        return new TimerManager;
     }
 
     public static function createStreamManager(): StreamManager
     {
         if (UvDetector::isUvAvailable()) {
-            return new UvStreamManager(self::getUvLoop());
+            return new UVStreamManager(self::getUvLoop());
         }
-        
-        return new StreamManager();
+
+        return new StreamManager;
     }
 
     public static function createSocketManager(): SocketManager
     {
-        if (UvDetector::isUvAvailable()) {
-            return new UvSocketManager(self::getUvLoop());
+        if (UVDetector::isUvAvailable()) {
+            return new UVSocketManager(self::getUvLoop());
         }
-        
-        return new SocketManager();
+
+        return new SocketManager;
     }
 
     public static function createWorkHandler(
@@ -57,8 +57,8 @@ final class EventLoopComponentFactory
         $fileManager,
         $socketManager
     ): WorkHandler {
-        if (UvDetector::isUvAvailable()) {
-            return new UvWorkHandler(
+        if (UVDetector::isUvAvailable()) {
+            return new UVWorkHandler(
                 self::getUvLoop(),
                 $timerManager,
                 $httpRequestManager,
@@ -85,8 +85,8 @@ final class EventLoopComponentFactory
         $timerManager,
         $fiberManager
     ): SleepHandler {
-        if (UvDetector::isUvAvailable()) {
-            return new UvSleepHandler(
+        if (UVDetector::isUvAvailable()) {
+            return new UVSleepHandler(
                 $timerManager,
                 $fiberManager,
                 self::getUvLoop()
@@ -98,10 +98,10 @@ final class EventLoopComponentFactory
 
     private static function getUvLoop()
     {
-        if (self::$uvLoop === null && UvDetector::isUvAvailable()) {
+        if (self::$uvLoop === null && UVDetector::isUvAvailable()) {
             self::$uvLoop = \uv_default_loop();
         }
-        
+
         return self::$uvLoop;
     }
 

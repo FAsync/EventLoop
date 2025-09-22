@@ -40,8 +40,8 @@ final class Socket
      */
     public function __construct($resource, bool $isClosed = false, array $metadata = [])
     {
-        if (!is_resource($resource) && $resource !== null) {
-            throw new \TypeError('Expected resource or null, got ' . gettype($resource));
+        if (! is_resource($resource) && $resource !== null) {
+            throw new \TypeError('Expected resource or null, got '.gettype($resource));
         }
 
         $this->resource = $resource;
@@ -170,8 +170,6 @@ final class Socket
 
     /**
      * String representation of the socket.
-     *
-     * @return string
      */
     public function __toString(): string
     {

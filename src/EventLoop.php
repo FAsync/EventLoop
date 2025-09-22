@@ -3,7 +3,7 @@
 namespace Hibla\EventLoop;
 
 use Fiber;
-use Hibla\EventLoop\Detectors\UvDetector;
+use Hibla\EventLoop\Detectors\UVDetector;
 use Hibla\EventLoop\Factories\EventLoopComponentFactory;
 use Hibla\EventLoop\Handlers\ActivityHandler;
 use Hibla\EventLoop\Handlers\SleepHandler;
@@ -120,7 +120,7 @@ class EventLoop implements EventLoopInterface
      */
     public function isUsingUv(): bool
     {
-        return UvDetector::isUvAvailable();
+        return UVDetector::isUvAvailable();
     }
 
     /**
@@ -287,7 +287,7 @@ class EventLoop implements EventLoopInterface
      */
     public function run(): void
     {
-        $isUsingUv = UvDetector::isUvAvailable();
+        $isUsingUv = UVDetector::isUvAvailable();
 
         while ($this->stateHandler->isRunning() && $this->workHandler->hasWork()) {
             $this->iterationCount++;
@@ -297,7 +297,7 @@ class EventLoop implements EventLoopInterface
                 $this->optimizeLoop();
             }
 
-            if (!$isUsingUv && $this->sleepHandler->shouldSleep($hasImmediateWork)) {
+            if (! $isUsingUv && $this->sleepHandler->shouldSleep($hasImmediateWork)) {
                 $sleepTime = $this->sleepHandler->calculateOptimalSleep();
                 $this->sleepHandler->sleep($sleepTime);
             }
@@ -505,4 +505,3 @@ class EventLoop implements EventLoopInterface
         self::$instance = null;
     }
 }
-

@@ -2,7 +2,6 @@
 
 namespace Hibla\EventLoop\Handlers;
 
-use Hibla\EventLoop\Handlers\TickHandler;
 use Hibla\EventLoop\Managers\FiberManager;
 use Hibla\EventLoop\Managers\FileManager;
 use Hibla\EventLoop\Managers\HttpRequestManager;
@@ -10,7 +9,7 @@ use Hibla\EventLoop\Managers\HttpRequestManager;
 /**
  * UV-aware work handler that integrates with libuv event loop
  */
-final class UvWorkHandler extends WorkHandler
+final class UVWorkHandler extends WorkHandler
 {
     private $uvLoop;
 
@@ -27,7 +26,7 @@ final class UvWorkHandler extends WorkHandler
         $socketManager,
     ) {
         $this->uvLoop = $uvLoop;
-        
+
         parent::__construct(
             $timerManager,
             $httpRequestManager,
@@ -74,9 +73,11 @@ final class UvWorkHandler extends WorkHandler
     {
         try {
             $result = \uv_run($this->uvLoop, self::UV_RUN_ONCE);
+
             return $result > 0;
-        } catch (\Error | \Exception $e) {
-            error_log("UV loop error: " . $e->getMessage());
+        } catch (\Error|\Exception $e) {
+            error_log('UV loop error: '.$e->getMessage());
+
             return false;
         }
     }
