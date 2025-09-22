@@ -1,4 +1,4 @@
 .qodo
 vendor/
-./composer.lock
+composer.lock
 .vscode/
