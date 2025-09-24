@@ -9,7 +9,7 @@ namespace Hibla\EventLoop\ValueObjects;
  * readiness within an event loop system. It encapsulates the stream resource,
  * callback function, and watch type for asynchronous I/O operations.
  */
-class StreamWatcher
+final class StreamWatcher
 {
     /**
      * Constant for read stream watching.

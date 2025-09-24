@@ -2,7 +2,7 @@
 
 namespace Hibla\EventLoop\ValueObjects;
 
-class FileOperation
+final class FileOperation
 {
     private string $id;
     private string $type;

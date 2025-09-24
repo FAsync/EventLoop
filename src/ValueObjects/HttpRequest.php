@@ -2,8 +2,6 @@
 
 namespace Hibla\EventLoop\ValueObjects;
 
-use Hibla\EventLoop\Interfaces\AsyncHttpRequestInterface;
-
 /**
  * HTTP request implementation for asynchronous processing.
  *
@@ -11,7 +9,7 @@ use Hibla\EventLoop\Interfaces\AsyncHttpRequestInterface;
  * for asynchronous execution within an event loop system. It manages the cURL
  * handle, callback execution, and request metadata.
  */
-class HttpRequest implements AsyncHttpRequestInterface
+final class HttpRequest
 {
     /**
      * The cURL handle for this HTTP request.

@@ -2,12 +2,10 @@
 
 namespace Hibla\EventLoop\ValueObjects;
 
-use Hibla\EventLoop\Interfaces\TimerInterface;
-
 /**
  * Value object representing a periodic timer that executes repeatedly.
  */
-class PeriodicTimer implements TimerInterface
+final class PeriodicTimer
 {
     private string $id;
     /**

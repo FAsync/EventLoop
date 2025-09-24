@@ -3,6 +3,7 @@
 namespace Hibla\EventLoop\Managers;
 
 use Fiber;
+use Hibla\EventLoop\Interfaces\FiberManagerInterface;
 use Hibla\EventLoop\IOHandlers\Fiber\FiberResumeHandler;
 use Hibla\EventLoop\IOHandlers\Fiber\FiberStartHandler;
 use Hibla\EventLoop\IOHandlers\Fiber\FiberStateHandler;
@@ -14,7 +15,7 @@ use Hibla\EventLoop\IOHandlers\Fiber\FiberStateHandler;
  * and managing the state of suspended fibers, ensuring they are resumed
  * when appropriate.
  */
-class FiberManager
+class FiberManager implements FiberManagerInterface
 {
     /** @var array<int, Fiber<mixed, mixed, mixed, mixed>> */
     private array $fibers = [];

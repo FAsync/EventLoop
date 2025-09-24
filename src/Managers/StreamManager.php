@@ -2,6 +2,7 @@
 
 namespace Hibla\EventLoop\Managers;
 
+use Hibla\EventLoop\Interfaces\StreamManagerInterface;
 use Hibla\EventLoop\IOHandlers\Stream\StreamSelectHandler;
 use Hibla\EventLoop\IOHandlers\Stream\StreamWatcherHandler;
 use Hibla\EventLoop\ValueObjects\StreamWatcher;
@@ -9,7 +10,7 @@ use Hibla\EventLoop\ValueObjects\StreamWatcher;
 /**
  * Manages stream watchers for an event loop.
  */
-class StreamManager
+class StreamManager implements StreamManagerInterface
 {
     /**
      * Stores registered stream watchers, keyed by their unique string ID.

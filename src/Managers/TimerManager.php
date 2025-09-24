@@ -2,6 +2,7 @@
 
 namespace Hibla\EventLoop\Managers;
 
+use Hibla\EventLoop\Interfaces\TimerManagerInterface;
 use Hibla\EventLoop\IOHandlers\Timer\TimerExecutionHandler;
 use Hibla\EventLoop\IOHandlers\Timer\TimerScheduleHandler;
 use Hibla\EventLoop\ValueObjects\PeriodicTimer;
@@ -13,7 +14,7 @@ use Hibla\EventLoop\ValueObjects\Timer;
  * This class handles the creation, cancellation, and processing of timers,
  * determining when they are ready to be executed.
  */
-class TimerManager
+class TimerManager implements TimerManagerInterface
 {
     /**
      * A map of active timers, keyed by their unique string ID.

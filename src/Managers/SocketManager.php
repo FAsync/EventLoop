@@ -2,13 +2,15 @@
 
 namespace Hibla\EventLoop\Managers;
 
+use Hibla\EventLoop\Interfaces\SocketManagerInterface;
+
 /**
  * Manages socket watchers for an event loop using stream_select.
  *
  * - `$readWatchers` and `$writeWatchers` store callbacks associated with sockets.
  *   Structure: [ socket_resource_id (int) => [ [socket_resource, callback], ... ] ]
  */
-class SocketManager
+class SocketManager implements SocketManagerInterface
 {
     /**
      * Stores watchers for sockets ready to be read from.

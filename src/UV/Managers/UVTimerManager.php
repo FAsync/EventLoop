@@ -2,9 +2,10 @@
 
 namespace Hibla\EventLoop\UV\Managers;
 
+use Hibla\EventLoop\Interfaces\TimerManagerInterface;
 use Hibla\EventLoop\Managers\TimerManager;
 
-final class UVTimerManager extends TimerManager
+final class UVTimerManager extends TimerManager implements TimerManagerInterface
 {
     private $uvLoop;
     private array $uvTimers = [];

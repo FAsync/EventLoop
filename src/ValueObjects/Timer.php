@@ -2,8 +2,6 @@
 
 namespace Hibla\EventLoop\ValueObjects;
 
-use Hibla\EventLoop\Interfaces\TimerInterface;
-
 /**
  * Value object representing a scheduled timer in the async event loop.
  *
@@ -16,7 +14,7 @@ use Hibla\EventLoop\Interfaces\TimerInterface;
  * and other time-based operations in the async system without blocking
  * the event loop or interfering with concurrent operations.
  */
-class Timer implements TimerInterface
+final class Timer
 {
     /**
      * @var string Unique identifier for this timer instance

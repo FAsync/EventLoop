@@ -3,6 +3,7 @@
 namespace Hibla\EventLoop\Managers;
 
 use CurlMultiHandle;
+use Hibla\EventLoop\Interfaces\HttpRequestManagerInterface;
 use Hibla\EventLoop\IOHandlers\Http\CurlMultiHandler;
 use Hibla\EventLoop\IOHandlers\Http\HttpRequestHandler;
 use Hibla\EventLoop\IOHandlers\Http\HttpResponseHandler;
@@ -14,7 +15,7 @@ use Hibla\EventLoop\ValueObjects\HttpRequest;
  * This class handles queuing new requests, adding them to a cURL multi-handle for
  * concurrent processing, and processing their responses or cancellations.
  */
-class HttpRequestManager
+class HttpRequestManager implements HttpRequestManagerInterface
 {
     /** @var list<HttpRequest> A queue of requests waiting to be added to the multi-handle. */
     private array $pendingRequests = [];

@@ -8,12 +8,8 @@ namespace Hibla\EventLoop\ValueObjects;
  * This class provides functionality to watch files for modifications, deletions,
  * and size changes using a polling mechanism. It's designed to work efficiently
  * within an event loop system for asynchronous file monitoring.
- *
- * @author  Your Name
- *
- * @since   1.0.0
  */
-class FileWatcher
+final class FileWatcher
 {
     /**
      * Unique identifier for this watcher instance.

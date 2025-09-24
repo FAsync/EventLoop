@@ -2,13 +2,14 @@
 
 namespace Hibla\EventLoop\UV\Managers;
 
+use Hibla\EventLoop\Interfaces\StreamManagerInterface;
 use Hibla\EventLoop\Managers\StreamManager;
 use Hibla\EventLoop\ValueObjects\StreamWatcher;
 
 /**
  * UV-based stream manager using libuv for efficient I/O polling
  */
-final class UVStreamManager extends StreamManager
+final class UVStreamManager extends StreamManager implements StreamManagerInterface
 {
     private $uvLoop;
     private array $uvPolls = [];

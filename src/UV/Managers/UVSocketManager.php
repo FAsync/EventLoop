@@ -2,12 +2,13 @@
 
 namespace Hibla\EventLoop\UV\Managers;
 
+use Hibla\EventLoop\Interfaces\SocketManagerInterface;
 use Hibla\EventLoop\Managers\SocketManager;
 
 /**
  * UV-based socket manager using libuv for efficient socket I/O
  */
-final class UVSocketManager extends SocketManager
+final class UVSocketManager extends SocketManager implements SocketManagerInterface
 {
     private $uvLoop;
     private array $uvTcpHandles = [];
@@ -35,88 +36,6 @@ final class UVSocketManager extends SocketManager
         }
 
         parent::addWriteWatcher($socket, $callback);
-    }
-
-    private function addUvReadWatcher(mixed $socket, callable $callback): bool
-    {
-        if (! is_resource($socket)) {
-            return false;
-        }
-
-        try {
-            $socketId = (int) $socket;
-            $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
-
-            \uv_poll_start($uvPoll, \UV::READABLE, function ($poll, $status, $events) use ($callback, $socketId) {
-                if ($status < 0) {
-                    error_log('UV read poll error: '.\uv_strerror($status));
-
-                    return;
-                }
-
-                $this->hasProcessedWork = true;
-
-                try {
-                    $callback();
-                } catch (\Throwable $e) {
-                    error_log('UV read callback error: '.$e->getMessage());
-                }
-
-                \uv_poll_stop($poll);
-                \uv_close($poll);
-                unset($this->uvTcpHandles[$socketId]);
-            });
-
-            $this->uvTcpHandles[$socketId] = $uvPoll;
-
-            return true;
-
-        } catch (\Throwable $e) {
-            error_log('Failed to create UV read watcher: '.$e->getMessage());
-
-            return false;
-        }
-    }
-
-    private function addUvWriteWatcher(mixed $socket, callable $callback): bool
-    {
-        if (! is_resource($socket)) {
-            return false;
-        }
-
-        try {
-            $socketId = (int) $socket;
-            $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
-
-            \uv_poll_start($uvPoll, \UV::WRITABLE, function ($poll, $status, $events) use ($callback, $socketId) {
-                if ($status < 0) {
-                    error_log('UV write poll error: '.\uv_strerror($status));
-
-                    return;
-                }
-
-                $this->hasProcessedWork = true;
-
-                try {
-                    $callback();
-                } catch (\Throwable $e) {
-                    error_log('UV write callback error: '.$e->getMessage());
-                }
-
-                \uv_poll_stop($poll);
-                \uv_close($poll);
-                unset($this->uvTcpHandles[$socketId]);
-            });
-
-            $this->uvTcpHandles[$socketId] = $uvPoll;
-
-            return true;
-
-        } catch (\Throwable $e) {
-            error_log('Failed to create UV write watcher: '.$e->getMessage());
-
-            return false;
-        }
     }
 
     /**
@@ -155,7 +74,6 @@ final class UVSocketManager extends SocketManager
         parent::clearAllWatchers();
     }
 
-    // Delegate removal methods to parent for consistency
     public function removeReadWatcher(mixed $socket): void
     {
         $socketId = (int) $socket;
@@ -189,5 +107,85 @@ final class UVSocketManager extends SocketManager
         $this->removeReadWatcher($socket);
         $this->removeWriteWatcher($socket);
         parent::clearAllWatchersForSocket($socket);
+    }
+
+    private function addUvReadWatcher(mixed $socket, callable $callback): bool
+    {
+        if (! is_resource($socket)) {
+            return false;
+        }
+
+        try {
+            $socketId = (int) $socket;
+            $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
+
+            \uv_poll_start($uvPoll, \UV::READABLE, function ($poll, $status, $events) use ($callback, $socketId) {
+                if ($status < 0) {
+                    error_log('UV read poll error: ' . \uv_strerror($status));
+
+                    return;
+                }
+
+                $this->hasProcessedWork = true;
+
+                try {
+                    $callback();
+                } catch (\Throwable $e) {
+                    error_log('UV read callback error: ' . $e->getMessage());
+                }
+
+                \uv_poll_stop($poll);
+                \uv_close($poll);
+                unset($this->uvTcpHandles[$socketId]);
+            });
+
+            $this->uvTcpHandles[$socketId] = $uvPoll;
+
+            return true;
+        } catch (\Throwable $e) {
+            error_log('Failed to create UV read watcher: ' . $e->getMessage());
+
+            return false;
+        }
+    }
+
+    private function addUvWriteWatcher(mixed $socket, callable $callback): bool
+    {
+        if (! is_resource($socket)) {
+            return false;
+        }
+
+        try {
+            $socketId = (int) $socket;
+            $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
+
+            \uv_poll_start($uvPoll, \UV::WRITABLE, function ($poll, $status, $events) use ($callback, $socketId) {
+                if ($status < 0) {
+                    error_log('UV write poll error: ' . \uv_strerror($status));
+
+                    return;
+                }
+
+                $this->hasProcessedWork = true;
+
+                try {
+                    $callback();
+                } catch (\Throwable $e) {
+                    error_log('UV write callback error: ' . $e->getMessage());
+                }
+
+                \uv_poll_stop($poll);
+                \uv_close($poll);
+                unset($this->uvTcpHandles[$socketId]);
+            });
+
+            $this->uvTcpHandles[$socketId] = $uvPoll;
+
+            return true;
+        } catch (\Throwable $e) {
+            error_log('Failed to create UV write watcher: ' . $e->getMessage());
+
+            return false;
+        }
     }
 }
