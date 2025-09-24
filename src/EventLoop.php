@@ -151,7 +151,7 @@ class EventLoop implements EventLoopInterface
      *
      * @return EventLoop The singleton event loop instance
      */
-    public static function getInstance(): EventLoop
+    public static function getInstance(): static
     {
         if (self::$instance === null) {
             self::$instance = new self;
