@@ -39,5 +39,8 @@
     },
     "suggest": {
         "ext-uv": "More performant event loop using libuv instead of streams"
+    },
+    "scripts": {
+        "test": "./vendor/bin/pest"
     }
 }
