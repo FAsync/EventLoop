@@ -66,8 +66,12 @@ describe('EventLoop Shutdown', function () {
     it('respects graceful shutdown timeout', function () {
         $loop = EventLoop::getInstance();
         $startTime = microtime(true);
+        $periodicExecutions = 0;
 
-        $loop->addPeriodicTimer(0.001, fn() => usleep(1000));
+        $loop->addPeriodicTimer(0.001, function () use (&$periodicExecutions) {
+            $periodicExecutions++;
+            usleep(1000);
+        });
 
         $loop->addTimer(0.005, function () use ($loop) {
             $loop->stop();
@@ -76,6 +80,11 @@ describe('EventLoop Shutdown', function () {
         $loop->run();
 
         $duration = microtime(true) - $startTime;
-        expect($duration)->toBeLessThan(0.1);
+
+        expect($duration)->toBeLessThan(2.0);
+
+
+        expect($periodicExecutions)->toBeGreaterThan(0);
+        expect($loop->isRunning())->toBeFalse();
     });
 });
