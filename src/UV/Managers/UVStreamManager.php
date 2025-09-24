@@ -22,38 +22,49 @@ final class UVStreamManager extends StreamManager implements StreamManagerInterf
 
     public function addStreamWatcher($stream, callable $callback, string $type = StreamWatcher::TYPE_READ): string
     {
-        $watcherId = $this->generateWatcherId();
-
-        $socket = is_resource($stream) ? $stream : null;
-        if (! $socket) {
+        if (!is_resource($stream)) {
             throw new \InvalidArgumentException('Invalid stream resource');
         }
 
-        $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
+        $watcherId = parent::addStreamWatcher($stream, $callback, $type);
 
-        $this->uvPolls[$watcherId] = $uvPoll;
-
-        $events = match ($type) {
-            StreamWatcher::TYPE_READ => \UV::READABLE,
-            StreamWatcher::TYPE_WRITE => \UV::WRITABLE,
-            default => \UV::READABLE
-        };
-
-        \uv_poll_start($uvPoll, $events, function ($poll, $status, $events) use ($callback, $stream, $type) {
-            if ($status < 0) {
-                error_log('UV poll error: '.\uv_strerror($status));
-
-                return;
+        try {
+            $uvPoll = \uv_poll_init_socket($this->uvLoop, $stream);
+            
+            if ($uvPoll === false) {
+                parent::removeStreamWatcher($watcherId);
+                throw new \RuntimeException('Failed to initialize UV poll for stream');
             }
 
-            try {
-                $callback($stream, $type);
-            } catch (\Throwable $e) {
-                error_log('UV stream callback error: '.$e->getMessage());
-            }
-        });
+            $this->uvPolls[$watcherId] = $uvPoll;
 
-        return parent::addStreamWatcher($stream, $callback, $type);
+            $events = match ($type) {
+                StreamWatcher::TYPE_READ => \UV::READABLE,
+                StreamWatcher::TYPE_WRITE => \UV::WRITABLE,
+                default => \UV::READABLE
+            };
+
+            \uv_poll_start($uvPoll, $events, function ($poll, $status, $events) use ($callback, $stream, $type) {
+                if ($status < 0) {
+                    error_log('UV poll error: ' . \uv_strerror($status));
+                    return;
+                }
+
+                try {
+                    $callback($stream, $type);
+                } catch (\Throwable $e) {
+                    error_log('UV stream callback error: ' . $e->getMessage());
+                }
+            });
+
+            return $watcherId;
+        } catch (\Throwable $e) {
+            if (isset($this->uvPolls[$watcherId])) {
+                unset($this->uvPolls[$watcherId]);
+            }
+            parent::removeStreamWatcher($watcherId);
+            throw $e;
+        }
     }
 
     public function removeStreamWatcher(string $watcherId): bool
@@ -74,9 +85,7 @@ final class UVStreamManager extends StreamManager implements StreamManagerInterf
      */
     public function processStreams(): void
     {
-        if (parent::hasWatchers()) {
-            parent::processStreams();
-        }
+        parent::processStreams();
     }
 
     public function clearAllWatchers(): void
@@ -92,11 +101,6 @@ final class UVStreamManager extends StreamManager implements StreamManagerInterf
 
     public function hasWatchers(): bool
     {
-        return ! empty($this->uvPolls) || parent::hasWatchers();
-    }
-
-    private function generateWatcherId(): string
-    {
-        return uniqid('uv_stream_', true);
+        return !empty($this->uvPolls) || parent::hasWatchers();
     }
 }

@@ -13,7 +13,6 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
     private $uvLoop;
     private array $uvTcpHandles = [];
     private array $uvUdpHandles = [];
-    private bool $hasProcessedWork = false;
 
     public function __construct($uvLoop = null)
     {
@@ -43,13 +42,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
      */
     public function processSockets(): bool
     {
-        $uvWorkDone = $this->hasProcessedWork;
-        $this->hasProcessedWork = false;
-
-        // Also process parent sockets for fallback cases
-        $parentWorkDone = parent::processSockets();
-
-        return $uvWorkDone || $parentWorkDone;
+        return parent::processSockets();
     }
 
     public function hasWatchers(): bool
@@ -69,7 +62,6 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
 
         $this->uvTcpHandles = [];
         $this->uvUdpHandles = [];
-        $this->hasProcessedWork = false;
 
         parent::clearAllWatchers();
     }
@@ -126,8 +118,6 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
                     return;
                 }
 
-                $this->hasProcessedWork = true;
-
                 try {
                     $callback();
                 } catch (\Throwable $e) {
@@ -165,8 +155,6 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
 
                     return;
                 }
-
-                $this->hasProcessedWork = true;
 
                 try {
                     $callback();
