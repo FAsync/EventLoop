@@ -13,7 +13,8 @@ use Hibla\EventLoop\EventLoop;
 |
 */
 
-pest()->extend(Tests\TestCase::class)->in('Feature', 'Unit');
+pest()->extend(Tests\TestCase::class)->in('Feature', 'Integration');
+pest()->extend(Tests\TestCase::class)->in('Unit');
 
 beforeEach(function () {
     EventLoop::reset();
