@@ -1,6 +1,6 @@
 <?php
 
-namespace Hibla\EventLoop\Managers\UV;
+namespace Hibla\EventLoop\UV\Managers;
 
 use Hibla\EventLoop\Managers\TimerManager;
 

@@ -3,7 +3,7 @@
 namespace Hibla\EventLoop;
 
 use Fiber;
-use Hibla\EventLoop\Detectors\UVDetector;
+use Hibla\EventLoop\UV\Detectors\UVDetector;
 use Hibla\EventLoop\Factories\EventLoopComponentFactory;
 use Hibla\EventLoop\Handlers\ActivityHandler;
 use Hibla\EventLoop\Handlers\SleepHandler;

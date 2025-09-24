@@ -1,7 +1,9 @@
 <?php
 
-namespace Hibla\EventLoop\Handlers;
+namespace Hibla\EventLoop\UV\Handlers;
 
+use Hibla\EventLoop\Handlers\WorkHandler;
+use Hibla\EventLoop\Handlers\TickHandler;
 use Hibla\EventLoop\Managers\FiberManager;
 use Hibla\EventLoop\Managers\FileManager;
 use Hibla\EventLoop\Managers\HttpRequestManager;
@@ -12,7 +14,6 @@ use Hibla\EventLoop\Managers\HttpRequestManager;
 final class UVWorkHandler extends WorkHandler
 {
     private $uvLoop;
-
     private const UV_RUN_ONCE = 1;
 
     public function __construct(
@@ -73,11 +74,9 @@ final class UVWorkHandler extends WorkHandler
     {
         try {
             $result = \uv_run($this->uvLoop, self::UV_RUN_ONCE);
-
             return $result > 0;
-        } catch (\Error|\Exception $e) {
-            error_log('UV loop error: '.$e->getMessage());
-
+        } catch (\Error | \Exception $e) {
+            error_log('UV loop error: ' . $e->getMessage());
             return false;
         }
     }

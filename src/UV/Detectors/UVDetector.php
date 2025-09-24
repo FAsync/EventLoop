@@ -1,6 +1,6 @@
 <?php
 
-namespace Hibla\EventLoop\Detectors;
+namespace Hibla\EventLoop\UV\Detectors;
 
 /**
  * Detects availability of ext-uv and provides fallback mechanisms
