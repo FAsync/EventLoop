@@ -125,9 +125,8 @@ describe('EventLoop Error Handling', function () {
 
     it('handles memory pressure gracefully', function () {
         $loop = EventLoop::getInstance();
-        $completed = false;
 
-        $operationCount = getenv('CI') ? 1000 : 10000;
+        $operationCount = 100000;
 
         for ($i = 0; $i < $operationCount; $i++) {
             $loop->nextTick(function () {
@@ -135,17 +134,10 @@ describe('EventLoop Error Handling', function () {
             });
         }
 
-        $timeout = getenv('CI') ? 1.0 : 0.1;
-        $loop->addTimer($timeout, function () use (&$completed, $loop) {
-            $completed = true;
-            $loop->stop();
-        });
-
         $startMemory = memory_get_usage();
         $loop->run();
         $endMemory = memory_get_usage();
 
-        expect($completed)->toBeTrue();
         expect($endMemory - $startMemory)->toBeLessThan(50 * 1024 * 1024);
-    })->skipOnWindows();
+    });
 });
