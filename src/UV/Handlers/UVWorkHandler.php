@@ -58,6 +58,11 @@ final class UVWorkHandler extends WorkHandler
         if ($this->fileManager->processFileOperations()) {
             $workDone = true;
         }
+        
+        if ($this->streamManager->hasWatchers()) {
+            $this->streamManager->processStreams();
+            $workDone = true;
+        }
 
         if ($this->runUvLoop()) {
             $workDone = true;

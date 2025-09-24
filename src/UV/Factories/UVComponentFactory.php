@@ -2,10 +2,10 @@
 
 namespace Hibla\EventLoop\UV\Factories;
 
+use Hibla\EventLoop\Managers\StreamManager;
 use Hibla\EventLoop\UV\Handlers\UVSleepHandler;
 use Hibla\EventLoop\UV\Handlers\UVWorkHandler;
 use Hibla\EventLoop\UV\Managers\UVSocketManager;
-use Hibla\EventLoop\UV\Managers\UVStreamManager;
 use Hibla\EventLoop\UV\Managers\UVTimerManager;
 
 /**
@@ -20,9 +20,9 @@ final class UVComponentFactory
         return new UVTimerManager(self::getUvLoop());
     }
 
-    public static function createStreamManager(): UVStreamManager
+    public static function createStreamManager(): StreamManager
     {
-        return new UVStreamManager(self::getUvLoop());
+        return new StreamManager();
     }
 
     public static function createSocketManager(): UVSocketManager
