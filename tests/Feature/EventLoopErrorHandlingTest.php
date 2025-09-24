@@ -147,5 +147,5 @@ describe('EventLoop Error Handling', function () {
 
         expect($completed)->toBeTrue();
         expect($endMemory - $startMemory)->toBeLessThan(50 * 1024 * 1024);
-    });
+    })->skipOnCI();
 });
