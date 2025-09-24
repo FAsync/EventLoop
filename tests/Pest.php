@@ -67,16 +67,39 @@ function createTestStream()
     return $stream;
 }
 
-/**
- * Create a test socket pair for testing
- */
 function createTestSocketPair(): array
 {
-    $sockets = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
-    if ($sockets === false) {
-        throw new RuntimeException('Failed to create socket pair');
+    // Try Unix sockets first (Linux/Mac)
+    if (PHP_OS_FAMILY !== 'Windows') {
+        $sockets = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        if ($sockets !== false) {
+            return $sockets;
+        }
     }
-    return $sockets;
+    
+    // Fallback to TCP sockets for Windows or if Unix sockets failed
+    $server = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
+    if (!$server) {
+        throw new RuntimeException("Failed to create server socket: $errstr");
+    }
+    
+    $address = stream_socket_get_name($server, false);
+    $client = stream_socket_client("tcp://$address", $errno, $errstr);
+    if (!$client) {
+        fclose($server);
+        throw new RuntimeException("Failed to create client socket: $errstr");
+    }
+    
+    $connection = stream_socket_accept($server);
+    if (!$connection) {
+        fclose($server);
+        fclose($client);
+        throw new RuntimeException('Failed to accept connection');
+    }
+    
+    fclose($server);
+    
+    return [$client, $connection];
 }
 
 /**
