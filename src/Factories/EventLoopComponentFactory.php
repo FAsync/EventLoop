@@ -3,12 +3,18 @@
 namespace Hibla\EventLoop\Factories;
 
 use Hibla\EventLoop\Handlers\SleepHandler;
+use Hibla\EventLoop\Handlers\TickHandler;
 use Hibla\EventLoop\Handlers\WorkHandler;
+use Hibla\EventLoop\Managers\FiberManager;
+use Hibla\EventLoop\Managers\FileManager;
+use Hibla\EventLoop\Managers\HttpRequestManager;
 use Hibla\EventLoop\Managers\SocketManager;
 use Hibla\EventLoop\Managers\StreamManager;
 use Hibla\EventLoop\Managers\TimerManager;
 use Hibla\EventLoop\UV\Detectors\UVDetector;
 use Hibla\EventLoop\UV\Factories\UVComponentFactory;
+use Hibla\EventLoop\UV\Managers\UVSocketManager;
+use Hibla\EventLoop\UV\Managers\UVTimerManager;
 
 /**
  * Factory for creating UV-aware or fallback components
@@ -43,13 +49,13 @@ final class EventLoopComponentFactory
     }
 
     public static function createWorkHandler(
-        $timerManager,
-        $httpRequestManager,
-        $streamManager,
-        $fiberManager,
-        $tickHandler,
-        $fileManager,
-        $socketManager
+        TimerManager|UVTimerManager $timerManager,
+        HttpRequestManager $httpRequestManager,
+        StreamManager $streamManager,
+        FiberManager $fiberManager,
+        TickHandler $tickHandler,
+        FileManager $fileManager,
+        SocketManager|UVSocketManager $socketManager
     ): WorkHandler {
         if (UVDetector::isUvAvailable()) {
             return UVComponentFactory::createWorkHandler(
@@ -75,8 +81,8 @@ final class EventLoopComponentFactory
     }
 
     public static function createSleepHandler(
-        $timerManager,
-        $fiberManager
+        TimerManager|UVTimerManager $timerManager,
+        FiberManager $fiberManager
     ): SleepHandler {
         if (UVDetector::isUvAvailable()) {
             return UVComponentFactory::createSleepHandler($timerManager, $fiberManager);

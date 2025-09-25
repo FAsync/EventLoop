@@ -10,15 +10,26 @@ use Hibla\EventLoop\Managers\SocketManager;
  */
 final class UVSocketManager extends SocketManager implements SocketManagerInterface
 {
+    /** @var \UVLoop|null */
     private $uvLoop;
+
+    /** @var array<int, \UVPoll> */
     private array $uvTcpHandles = [];
+
+    /** @var array<int, mixed> */
     private array $uvUdpHandles = [];
 
+    /**
+     * @param  \UVLoop|null  $uvLoop
+     */
     public function __construct($uvLoop = null)
     {
         $this->uvLoop = $uvLoop ?? \uv_default_loop();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function addReadWatcher(mixed $socket, callable $callback): void
     {
         if ($this->addUvReadWatcher($socket, $callback)) {
@@ -28,6 +39,9 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
         parent::addReadWatcher($socket, $callback);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function addWriteWatcher(mixed $socket, callable $callback): void
     {
         if ($this->addUvWriteWatcher($socket, $callback)) {
@@ -38,18 +52,24 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
     }
 
     /**
-     * Process sockets - MUST return bool to match parent signature
+     * {@inheritdoc}
      */
     public function processSockets(): bool
     {
         return parent::processSockets();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function hasWatchers(): bool
     {
-        return ! empty($this->uvTcpHandles) || ! empty($this->uvUdpHandles) || parent::hasWatchers();
+        return count($this->uvTcpHandles) > 0 || count($this->uvUdpHandles) > 0 || parent::hasWatchers();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function clearAllWatchers(): void
     {
         foreach ($this->uvTcpHandles as $handle) {
@@ -57,6 +77,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
             \uv_close($handle);
         }
         foreach ($this->uvUdpHandles as $handle) {
+            /** @phpstan-ignore-next-line */
             \uv_close($handle);
         }
 
@@ -66,6 +87,9 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
         parent::clearAllWatchers();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function removeReadWatcher(mixed $socket): void
     {
         $socketId = (int) $socket;
@@ -80,6 +104,9 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
         parent::removeReadWatcher($socket);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function removeWriteWatcher(mixed $socket): void
     {
         $socketId = (int) $socket;
@@ -94,6 +121,9 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
         parent::removeWriteWatcher($socket);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function clearAllWatchersForSocket(mixed $socket): void
     {
         $this->removeReadWatcher($socket);
@@ -101,6 +131,9 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
         parent::clearAllWatchersForSocket($socket);
     }
 
+    /**
+     * Add a UV read watcher for the given socket.
+     */
     private function addUvReadWatcher(mixed $socket, callable $callback): bool
     {
         if (! is_resource($socket)) {
@@ -109,11 +142,18 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
 
         try {
             $socketId = (int) $socket;
+
+            if (! function_exists('uv_poll_init_socket')) {
+                return false;
+            }
+
+            /** @var \UVPoll $uvPoll */
             $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
 
             \uv_poll_start($uvPoll, \UV::READABLE, function ($poll, $status, $events) use ($callback, $socketId) {
                 if ($status < 0) {
-                    error_log('UV read poll error: '.\uv_strerror($status));
+                    $statusInt = is_int($status) ? $status : 0;
+                    error_log('UV read poll error: '.\uv_strerror($statusInt));
 
                     return;
                 }
@@ -124,6 +164,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
                     error_log('UV read callback error: '.$e->getMessage());
                 }
 
+                /** @var \UVPoll $poll */
                 \uv_poll_stop($poll);
                 \uv_close($poll);
                 unset($this->uvTcpHandles[$socketId]);
@@ -139,6 +180,9 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
         }
     }
 
+    /**
+     * Add a UV write watcher for the given socket.
+     */
     private function addUvWriteWatcher(mixed $socket, callable $callback): bool
     {
         if (! is_resource($socket)) {
@@ -147,11 +191,18 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
 
         try {
             $socketId = (int) $socket;
+
+            if (! function_exists('uv_poll_init_socket')) {
+                return false;
+            }
+
+            /** @var \UVPoll $uvPoll */
             $uvPoll = \uv_poll_init_socket($this->uvLoop, $socket);
 
             \uv_poll_start($uvPoll, \UV::WRITABLE, function ($poll, $status, $events) use ($callback, $socketId) {
                 if ($status < 0) {
-                    error_log('UV write poll error: '.\uv_strerror($status));
+                    $statusInt = is_int($status) ? $status : 0;
+                    error_log('UV write poll error: '.\uv_strerror($statusInt));
 
                     return;
                 }
@@ -162,6 +213,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
                     error_log('UV write callback error: '.$e->getMessage());
                 }
 
+                /** @var \UVPoll $poll */
                 \uv_poll_stop($poll);
                 \uv_close($poll);
                 unset($this->uvTcpHandles[$socketId]);

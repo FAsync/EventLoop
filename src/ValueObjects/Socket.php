@@ -145,7 +145,9 @@ final class Socket
      */
     public function getType(): ?string
     {
-        return $this->getMetadataValue('type');
+        $value = $this->getMetadataValue('type');
+
+        return is_string($value) ? $value : null;
     }
 
     /**
@@ -155,7 +157,9 @@ final class Socket
      */
     public function getAddress(): ?string
     {
-        return $this->getMetadataValue('address');
+        $value = $this->getMetadataValue('address');
+
+        return is_string($value) ? $value : null;
     }
 
     /**
@@ -165,7 +169,9 @@ final class Socket
      */
     public function getPort(): ?int
     {
-        return $this->getMetadataValue('port');
+        $value = $this->getMetadataValue('port');
+
+        return is_int($value) ? $value : null;
     }
 
     /**

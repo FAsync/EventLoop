@@ -19,7 +19,7 @@ final class HttpRequest
     /**
      * Callback function to execute when the request completes.
      *
-     * @var callable(?string, ?string, ?int, array<string, mixed>): void
+     * @var callable(?string, ?string, ?int, array<string, mixed>, ?string): void
      */
     private $callback;
 
@@ -38,7 +38,7 @@ final class HttpRequest
      *
      * @param  string  $url  The URL to request
      * @param  array<int|string, mixed>  $options  cURL options array
-     * @param  callable(?string, ?string, ?int, array<string, mixed>): void  $callback  Callback to execute on completion
+     * @param  callable(?string, ?string, ?int, array<string, mixed>, ?string): void  $callback  Callback to execute on completion
      */
     public function __construct(string $url, array $options, callable $callback)
     {
@@ -76,7 +76,7 @@ final class HttpRequest
     /**
      * Gets the callback function for this request.
      *
-     * @return callable(?string, ?string, ?int, array<string, mixed>): void The callback function
+     * @return callable(?string, ?string, ?int, array<string, mixed>, ?string): void The callback function
      */
     public function getCallback(): callable
     {

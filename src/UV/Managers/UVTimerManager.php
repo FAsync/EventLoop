@@ -7,11 +7,21 @@ use Hibla\EventLoop\Managers\TimerManager;
 
 final class UVTimerManager extends TimerManager implements TimerManagerInterface
 {
+    /** @var \UVLoop|null */
     private $uvLoop;
+
+    /** @var array<string, \UVTimer> */
     private array $uvTimers = [];
+
+    /** @var array<string, callable> */
     private array $timerCallbacks = [];
+
+    /** @var array<string, array{max_executions: int|null, execution_count: int, interval: float}> */
     private array $periodicTimers = [];
 
+    /**
+     * @param  \UVLoop|null  $uvLoop
+     */
     public function __construct($uvLoop = null)
     {
         parent::__construct();
@@ -23,6 +33,7 @@ final class UVTimerManager extends TimerManager implements TimerManagerInterface
         $timerId = uniqid('uv_timer_', true);
         $this->timerCallbacks[$timerId] = $callback;
 
+        /** @var \UVTimer $uvTimer */
         $uvTimer = \uv_timer_init($this->uvLoop);
         $this->uvTimers[$timerId] = $uvTimer;
 
@@ -39,6 +50,7 @@ final class UVTimerManager extends TimerManager implements TimerManagerInterface
                 error_log('UV Timer callback error: '.$e->getMessage());
             } finally {
                 if (isset($this->uvTimers[$timerId])) {
+                    /** @var \UV $timer */
                     \uv_close($timer);
                     unset($this->uvTimers[$timerId]);
                     unset($this->timerCallbacks[$timerId]);
@@ -61,6 +73,7 @@ final class UVTimerManager extends TimerManager implements TimerManagerInterface
             'interval' => $interval,
         ];
 
+        /** @var \UVTimer $uvTimer */
         $uvTimer = \uv_timer_init($this->uvLoop);
         $this->uvTimers[$timerId] = $uvTimer;
 
@@ -73,7 +86,9 @@ final class UVTimerManager extends TimerManager implements TimerManagerInterface
         \uv_timer_start($uvTimer, $intervalMs, $intervalMs, function ($timer) use ($callback, $timerId, $maxExecutions, &$executionCount) {
             try {
                 $executionCount++;
-                $this->periodicTimers[$timerId]['execution_count'] = $executionCount;
+                if (isset($this->periodicTimers[$timerId])) {
+                    $this->periodicTimers[$timerId]['execution_count'] = $executionCount;
+                }
 
                 $callback();
 
@@ -112,12 +127,12 @@ final class UVTimerManager extends TimerManager implements TimerManagerInterface
 
     public function processTimers(): bool
     {
-        return ! empty($this->uvTimers) || parent::processTimers();
+        return count($this->uvTimers) > 0 || parent::processTimers();
     }
 
     public function hasTimers(): bool
     {
-        return ! empty($this->uvTimers) || parent::hasTimers();
+        return count($this->uvTimers) > 0 || parent::hasTimers();
     }
 
     public function clearAllTimers(): void
@@ -135,13 +150,16 @@ final class UVTimerManager extends TimerManager implements TimerManagerInterface
 
     public function getNextTimerDelay(): ?float
     {
-        if (! empty($this->uvTimers)) {
+        if (count($this->uvTimers) > 0) {
             return null;
         }
 
         return parent::getNextTimerDelay();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getTimerStats(): array
     {
         $parentStats = parent::getTimerStats();
@@ -153,23 +171,32 @@ final class UVTimerManager extends TimerManager implements TimerManagerInterface
         foreach ($this->uvTimers as $timerId => $timer) {
             if (isset($this->periodicTimers[$timerId])) {
                 $uvPeriodicCount++;
-                $uvTotalExecutions += $this->periodicTimers[$timerId]['execution_count'];
+                $periodicInfo = $this->periodicTimers[$timerId];
+                $uvTotalExecutions += $periodicInfo['execution_count'];
             } else {
                 $uvRegularCount++;
             }
         }
 
+        $regularTimers = is_int($parentStats['regular_timers']) ? $parentStats['regular_timers'] : 0;
+        $periodicTimers = is_int($parentStats['periodic_timers']) ? $parentStats['periodic_timers'] : 0;
+        $totalTimers = is_int($parentStats['total_timers']) ? $parentStats['total_timers'] : 0;
+        $totalExecutions = is_numeric($parentStats['total_periodic_executions']) ? (int) $parentStats['total_periodic_executions'] : 0;
+
         return [
-            'regular_timers' => $parentStats['regular_timers'] + $uvRegularCount,
-            'periodic_timers' => $parentStats['periodic_timers'] + $uvPeriodicCount,
-            'total_timers' => $parentStats['total_timers'] + count($this->uvTimers),
-            'total_periodic_executions' => $parentStats['total_periodic_executions'] + $uvTotalExecutions,
+            'regular_timers' => $regularTimers + $uvRegularCount,
+            'periodic_timers' => $periodicTimers + $uvPeriodicCount,
+            'total_timers' => $totalTimers + count($this->uvTimers),
+            'total_periodic_executions' => $totalExecutions + $uvTotalExecutions,
             'uv_timers' => count($this->uvTimers),
             'uv_regular_timers' => $uvRegularCount,
             'uv_periodic_timers' => $uvPeriodicCount,
         ];
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getTimerInfo(string $timerId): ?array
     {
         if (isset($this->uvTimers[$timerId])) {

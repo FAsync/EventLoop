@@ -44,7 +44,7 @@ class HttpRequestManager implements HttpRequestManagerInterface
      *
      * @param  string  $url  The URL for the request.
      * @param  array<int, mixed>  $options  cURL options for the request.
-     * @param  callable(string|null, string|null, int|null, array<string, mixed>, string|null): void  $callback  The callback to execute upon completion.
+     * @param  callable  $callback  The callback to execute upon completion.
      * @return string A unique ID for the request, which can be used for cancellation.
      */
     public function addHttpRequest(string $url, array $options, callable $callback): string
@@ -114,6 +114,9 @@ class HttpRequestManager implements HttpRequestManagerInterface
         return $workDone;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getDebugInfo(): array
     {
         return [

@@ -22,7 +22,7 @@ use Hibla\EventLoop\ValueObjects\StreamWatcher;
 /**
  * Main event loop implementation for asynchronous operations using PHP Fibers.
  */
-class EventLoop implements EventLoopInterface
+final class EventLoop implements EventLoopInterface
 {
     /**
      * @var EventLoop|null Singleton instance of the event loop
@@ -151,7 +151,7 @@ class EventLoop implements EventLoopInterface
      *
      * @return EventLoop The singleton event loop instance
      */
-    public static function getInstance(): static
+    public static function getInstance(): self
     {
         if (self::$instance === null) {
             self::$instance = new self;

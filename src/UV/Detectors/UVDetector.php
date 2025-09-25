@@ -21,7 +21,7 @@ final class UVDetector
     public static function requiresUv(): bool
     {
         return self::isUvAvailable() &&
-               ! empty($_ENV['FIBER_ASYNC_FORCE_UV']) ||
-               ! empty($_SERVER['FIBER_ASYNC_FORCE_UV']);
+               (isset($_ENV['FIBER_ASYNC_FORCE_UV']) && $_ENV['FIBER_ASYNC_FORCE_UV'] !== '' && $_ENV['FIBER_ASYNC_FORCE_UV'] !== '0') ||
+               (isset($_SERVER['FIBER_ASYNC_FORCE_UV']) && $_SERVER['FIBER_ASYNC_FORCE_UV'] !== '' && $_SERVER['FIBER_ASYNC_FORCE_UV'] !== '0');
     }
 }

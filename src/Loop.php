@@ -11,7 +11,7 @@ use Hibla\EventLoop\ValueObjects\StreamWatcher;
  * Static convenience wrapper for the EventLoop singleton
  * Provides direct access to all EventLoop methods without getInstance() calls
  */
-class Loop
+final class Loop
 {
     /**
      * Get the singleton instance of the event loop.

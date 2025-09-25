@@ -21,10 +21,10 @@ foreach ($dotenvPaths as $path) {
     }
 }
 
-$dotenv = $dotenv ?: Dotenv::createImmutable(__DIR__);
+$dotenv = $dotenv !== null ? $dotenv : Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
-function setupGracefulShutdown($eventLoop): void
+function setupGracefulShutdown(EventLoop $eventLoop): void
 {
     register_shutdown_function(function () use ($eventLoop) {
         if ($eventLoop->isRunning()) {
@@ -41,19 +41,15 @@ function setupGracefulShutdown($eventLoop): void
         pcntl_signal(SIGTERM, $signalHandler);
         pcntl_async_signals(true);
     } elseif (PHP_OS_FAMILY === 'Windows' && function_exists('sapi_windows_set_ctrl_handler')) {
-        sapi_windows_set_ctrl_handler(function ($event) use ($eventLoop) {
-            if (in_array($event, [PHP_WINDOWS_EVENT_CTRL_C, PHP_WINDOWS_EVENT_CTRL_BREAK])) {
+        sapi_windows_set_ctrl_handler(function (int $event) use ($eventLoop): void {
+            if (in_array($event, [PHP_WINDOWS_EVENT_CTRL_C, PHP_WINDOWS_EVENT_CTRL_BREAK], true)) {
                 $eventLoop->stop();
-
-                return true;
             }
-
-            return false;
         });
     }
 }
 
-$enableEventLoop = filter_var($_ENV['ENABLE_GLOBAL_EVENT_LOOP'] ?? getenv('ENABLE_GLOBAL_EVENT_LOOP') ?: 'true', FILTER_VALIDATE_BOOLEAN);
+$enableEventLoop = filter_var($_ENV['ENABLE_GLOBAL_EVENT_LOOP'] ?? (getenv('ENABLE_GLOBAL_EVENT_LOOP') !== false ? getenv('ENABLE_GLOBAL_EVENT_LOOP') : 'true'), FILTER_VALIDATE_BOOLEAN);
 
 if ($enableEventLoop) {
     Defer::global(function () {

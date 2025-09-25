@@ -8,3 +8,11 @@ parameters:
     treatPhpDocTypesAsCertain: false
     excludePaths:
         - tests/
+    ignoreErrors:
+        - '#Parameter .* expects UVLoop\|null, mixed given#'
+        -
+            message: '#Parameter \#1 \$timerManager of static method.*expects.*UVTimerManager.*TimerManager given#'
+            path: src/Factories/EventLoopComponentFactory.php
+        -
+            message: '#Parameter \#7 \$socketManager of static method.*expects.*UVSocketManager.*SocketManager given#'
+            path: src/Factories/EventLoopComponentFactory.php
