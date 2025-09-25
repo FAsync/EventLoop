@@ -21,8 +21,8 @@ describe('EventLoop Shutdown', function () {
     it('handles force shutdown', function () {
         $loop = EventLoop::getInstance();
 
-        $loop->addTimer(10.0, fn() => null);
-        $loop->addPeriodicTimer(0.1, fn() => null);
+        $loop->addTimer(10.0, fn () => null);
+        $loop->addPeriodicTimer(0.1, fn () => null);
 
         expect($loop->hasTimers())->toBeTrue();
 
@@ -34,12 +34,12 @@ describe('EventLoop Shutdown', function () {
     it('cleans up resources on shutdown', function () {
         $loop = EventLoop::getInstance();
 
-        $loop->addTimer(1.0, fn() => null);
-        $loop->nextTick(fn() => null);
-        $loop->defer(fn() => null);
+        $loop->addTimer(1.0, fn () => null);
+        $loop->nextTick(fn () => null);
+        $loop->defer(fn () => null);
 
         $stream = createTestStream();
-        $loop->addStreamWatcher($stream, fn() => null);
+        $loop->addStreamWatcher($stream, fn () => null);
 
         expect($loop->hasTimers())->toBeTrue();
 
@@ -82,7 +82,6 @@ describe('EventLoop Shutdown', function () {
         $duration = microtime(true) - $startTime;
 
         expect($duration)->toBeLessThan(2.0);
-
 
         expect($periodicExecutions)->toBeGreaterThan(0);
         expect($loop->isRunning())->toBeFalse();

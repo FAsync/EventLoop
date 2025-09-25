@@ -1,21 +1,22 @@
 <?php
 
+use Dotenv\Dotenv;
 use Hibla\EventLoop\EventLoop;
 use Rcalicdan\Defer\Defer;
-use Dotenv\Dotenv;
 
 $dotenvPaths = [
-    __DIR__ . '/../',
-    __DIR__ . '/../../',
-    __DIR__ . '/../../../',
-    __DIR__ . '/../../../../',
-    __DIR__ . '/',
+    __DIR__.'/../',
+    __DIR__.'/../../',
+    __DIR__.'/../../../',
+    __DIR__.'/../../../../',
+    __DIR__.'/',
 ];
 
 $dotenv = null;
 foreach ($dotenvPaths as $path) {
-    if (file_exists($path . '.env') || file_exists($path . '.env.example')) {
+    if (file_exists($path.'.env') || file_exists($path.'.env.example')) {
         $dotenv = Dotenv::createImmutable($path);
+
         break;
     }
 }
@@ -43,8 +44,10 @@ function setupGracefulShutdown($eventLoop): void
         sapi_windows_set_ctrl_handler(function ($event) use ($eventLoop) {
             if (in_array($event, [PHP_WINDOWS_EVENT_CTRL_C, PHP_WINDOWS_EVENT_CTRL_BREAK])) {
                 $eventLoop->stop();
+
                 return true;
             }
+
             return false;
         });
     }

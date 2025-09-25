@@ -2,9 +2,9 @@
 
 namespace Hibla\EventLoop\IOHandlers\File;
 
-use InvalidArgumentException;
 use Hibla\EventLoop\EventLoop;
 use Hibla\EventLoop\ValueObjects\FileOperation;
+use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
 

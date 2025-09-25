@@ -2,8 +2,8 @@
 
 namespace Hibla\EventLoop\UV\Handlers;
 
-use Hibla\EventLoop\Handlers\WorkHandler;
 use Hibla\EventLoop\Handlers\TickHandler;
+use Hibla\EventLoop\Handlers\WorkHandler;
 use Hibla\EventLoop\Managers\FiberManager;
 use Hibla\EventLoop\Managers\FileManager;
 use Hibla\EventLoop\Managers\HttpRequestManager;
@@ -58,7 +58,7 @@ final class UVWorkHandler extends WorkHandler
         if ($this->fileManager->processFileOperations()) {
             $workDone = true;
         }
-        
+
         if ($this->streamManager->hasWatchers()) {
             $this->streamManager->processStreams();
             $workDone = true;
@@ -79,9 +79,11 @@ final class UVWorkHandler extends WorkHandler
     {
         try {
             $result = \uv_run($this->uvLoop, self::UV_RUN_ONCE);
+
             return $result > 0;
-        } catch (\Error | \Exception $e) {
-            error_log('UV loop error: ' . $e->getMessage());
+        } catch (\Error|\Exception $e) {
+            error_log('UV loop error: '.$e->getMessage());
+
             return false;
         }
     }

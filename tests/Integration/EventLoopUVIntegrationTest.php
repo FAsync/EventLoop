@@ -2,10 +2,9 @@
 
 use Hibla\EventLoop\EventLoop;
 use Hibla\EventLoop\UV\Detectors\UVDetector;
-use Hibla\EventLoop\ValueObjects\StreamWatcher;
 
 beforeEach(function () {
-    if (!UVDetector::isUvAvailable()) {
+    if (! UVDetector::isUvAvailable()) {
         test()->markTestSkipped('UV extension not available');
     }
 
@@ -17,8 +16,8 @@ describe('EventLoop with UV Integration', function () {
         $loop = EventLoop::getInstance();
 
         expect($loop->isUsingUv())->toBeTrue();
-        expect($loop->getTimerManager())->toBeInstanceOf(\Hibla\EventLoop\UV\Managers\UVTimerManager::class);
-        expect($loop->getSocketManager())->toBeInstanceOf(\Hibla\EventLoop\UV\Managers\UVSocketManager::class);
+        expect($loop->getTimerManager())->toBeInstanceOf(Hibla\EventLoop\UV\Managers\UVTimerManager::class);
+        expect($loop->getSocketManager())->toBeInstanceOf(Hibla\EventLoop\UV\Managers\UVSocketManager::class);
     });
 
     it('can execute timers through event loop', function () {
@@ -56,7 +55,6 @@ describe('EventLoop with UV Integration', function () {
 
         expect($executionCount)->toBe($maxExecutions);
     });
-
 
     it('can cancel timers through event loop', function () {
         $loop = EventLoop::getInstance();

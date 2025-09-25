@@ -3,10 +3,10 @@
 use Hibla\EventLoop\EventLoop;
 
 describe('EventLoop Stress Tests', function () {
-   it('handles many timers without crashing', function () {
+    it('handles many timers without crashing', function () {
         $loop = EventLoop::getInstance();
         $executed = 0;
-        
+
         $timerCount = 1000;
 
         for ($i = 0; $i < $timerCount; $i++) {
@@ -20,14 +20,14 @@ describe('EventLoop Stress Tests', function () {
         });
 
         $startTime = microtime(true);
-        $loop->run(); 
+        $loop->run();
         $duration = microtime(true) - $startTime;
 
         expect($executed)->toBeGreaterThan(0);
 
         expect($duration)->toBeLessThan(3.0);
 
-        expect(true)->toBeTrue(); 
+        expect(true)->toBeTrue();
 
     })->skipOnCI();
 
@@ -36,7 +36,7 @@ describe('EventLoop Stress Tests', function () {
         $fiberCount = 1000;
 
         for ($i = 0; $i < $fiberCount; $i++) {
-            $fiber = new Fiber(fn() => "done");
+            $fiber = new Fiber(fn () => 'done');
             $loop->addFiber($fiber);
         }
 
@@ -77,7 +77,7 @@ describe('EventLoop Stress Tests', function () {
             'timers' => 0,
             'periodic' => 0,
             'ticks' => 0,
-            'deferred' => 0
+            'deferred' => 0,
         ];
 
         for ($i = 0; $i < 50; $i++) {

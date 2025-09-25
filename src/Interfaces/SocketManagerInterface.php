@@ -10,30 +10,30 @@ interface SocketManagerInterface
     /**
      * Adds a callback for when socket is readable.
      *
-     * @param resource $socket The socket resource
-     * @param callable $callback The callback function
+     * @param  resource  $socket  The socket resource
+     * @param  callable  $callback  The callback function
      */
     public function addReadWatcher(mixed $socket, callable $callback): void;
 
     /**
      * Adds a callback for when socket is writable.
      *
-     * @param resource $socket The socket resource
-     * @param callable $callback The callback function
+     * @param  resource  $socket  The socket resource
+     * @param  callable  $callback  The callback function
      */
     public function addWriteWatcher(mixed $socket, callable $callback): void;
 
     /**
      * Removes all read watchers for a socket.
      *
-     * @param resource $socket The socket resource
+     * @param  resource  $socket  The socket resource
      */
     public function removeReadWatcher(mixed $socket): void;
 
     /**
      * Removes all write watchers for a socket.
      *
-     * @param resource $socket The socket resource
+     * @param  resource  $socket  The socket resource
      */
     public function removeWriteWatcher(mixed $socket): void;
 
@@ -54,7 +54,7 @@ interface SocketManagerInterface
     /**
      * Clears all watchers for a specific socket.
      *
-     * @param resource $socket The socket resource
+     * @param  resource  $socket  The socket resource
      */
     public function clearAllWatchersForSocket(mixed $socket): void;
 

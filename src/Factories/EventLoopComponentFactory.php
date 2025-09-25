@@ -2,13 +2,13 @@
 
 namespace Hibla\EventLoop\Factories;
 
-use Hibla\EventLoop\UV\Detectors\UVDetector;
-use Hibla\EventLoop\UV\Factories\UVComponentFactory;
 use Hibla\EventLoop\Handlers\SleepHandler;
 use Hibla\EventLoop\Handlers\WorkHandler;
 use Hibla\EventLoop\Managers\SocketManager;
 use Hibla\EventLoop\Managers\StreamManager;
 use Hibla\EventLoop\Managers\TimerManager;
+use Hibla\EventLoop\UV\Detectors\UVDetector;
+use Hibla\EventLoop\UV\Factories\UVComponentFactory;
 
 /**
  * Factory for creating UV-aware or fallback components

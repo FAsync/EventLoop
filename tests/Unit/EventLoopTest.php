@@ -6,7 +6,7 @@ describe('EventLoop Singleton', function () {
     it('returns the same instance', function () {
         $loop1 = EventLoop::getInstance();
         $loop2 = EventLoop::getInstance();
-        
+
         expect($loop1)->toBe($loop2);
     });
 
@@ -14,7 +14,7 @@ describe('EventLoop Singleton', function () {
         $loop1 = EventLoop::getInstance();
         EventLoop::reset();
         $loop2 = EventLoop::getInstance();
-        
+
         expect($loop1)->not->toBe($loop2);
     });
 });
@@ -40,8 +40,8 @@ describe('EventLoop State Management', function () {
     it('reports idle state correctly', function () {
         $loop = EventLoop::getInstance();
         expect($loop->isIdle())->toBeTrue();
-        
-        $loop->addTimer(0.1, fn() => null);
+
+        $loop->addTimer(0.1, fn () => null);
         expect($loop->isIdle())->toBeFalse();
     });
 });
@@ -50,21 +50,21 @@ describe('EventLoop Managers Access', function () {
     it('provides access to timer manager', function () {
         $loop = EventLoop::getInstance();
         $timerManager = $loop->getTimerManager();
-        
-        expect($timerManager)->toBeInstanceOf(\Hibla\EventLoop\Managers\TimerManager::class);
+
+        expect($timerManager)->toBeInstanceOf(Hibla\EventLoop\Managers\TimerManager::class);
     });
 
     it('provides access to socket manager', function () {
         $loop = EventLoop::getInstance();
         $socketManager = $loop->getSocketManager();
-        
-        expect($socketManager)->toBeInstanceOf(\Hibla\EventLoop\Managers\SocketManager::class);
+
+        expect($socketManager)->toBeInstanceOf(Hibla\EventLoop\Managers\SocketManager::class);
     });
 
     it('detects UV availability', function () {
         $loop = EventLoop::getInstance();
         $hasUv = $loop->isUsingUv();
-        
+
         expect($hasUv)->toBeIn([true, false]);
     });
 });

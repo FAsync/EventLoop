@@ -10,8 +10,8 @@ interface TimerManagerInterface
     /**
      * Adds a new one-time timer.
      *
-     * @param float $delay Delay in seconds
-     * @param callable $callback The timer callback
+     * @param  float  $delay  Delay in seconds
+     * @param  callable  $callback  The timer callback
      * @return string The timer ID
      */
     public function addTimer(float $delay, callable $callback): string;
@@ -19,9 +19,9 @@ interface TimerManagerInterface
     /**
      * Adds a new periodic timer.
      *
-     * @param float $interval Interval in seconds
-     * @param callable $callback The timer callback
-     * @param int|null $maxExecutions Maximum executions (null for infinite)
+     * @param  float  $interval  Interval in seconds
+     * @param  callable  $callback  The timer callback
+     * @param  int|null  $maxExecutions  Maximum executions (null for infinite)
      * @return string The timer ID
      */
     public function addPeriodicTimer(float $interval, callable $callback, ?int $maxExecutions = null): string;
@@ -29,7 +29,7 @@ interface TimerManagerInterface
     /**
      * Cancels a timer by ID.
      *
-     * @param string $timerId The timer ID to cancel
+     * @param  string  $timerId  The timer ID to cancel
      * @return bool True if cancelled, false if not found
      */
     public function cancelTimer(string $timerId): bool;

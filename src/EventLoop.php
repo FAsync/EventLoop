@@ -3,7 +3,6 @@
 namespace Hibla\EventLoop;
 
 use Fiber;
-use Hibla\EventLoop\UV\Detectors\UVDetector;
 use Hibla\EventLoop\Factories\EventLoopComponentFactory;
 use Hibla\EventLoop\Handlers\ActivityHandler;
 use Hibla\EventLoop\Handlers\SleepHandler;
@@ -17,6 +16,7 @@ use Hibla\EventLoop\Managers\HttpRequestManager;
 use Hibla\EventLoop\Managers\SocketManager;
 use Hibla\EventLoop\Managers\StreamManager;
 use Hibla\EventLoop\Managers\TimerManager;
+use Hibla\EventLoop\UV\Detectors\UVDetector;
 use Hibla\EventLoop\ValueObjects\StreamWatcher;
 
 /**

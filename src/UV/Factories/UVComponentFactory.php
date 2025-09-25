@@ -22,7 +22,7 @@ final class UVComponentFactory
 
     public static function createStreamManager(): StreamManager
     {
-        return new StreamManager();
+        return new StreamManager;
     }
 
     public static function createSocketManager(): UVSocketManager
@@ -67,6 +67,7 @@ final class UVComponentFactory
         if (self::$uvLoop === null) {
             self::$uvLoop = \uv_default_loop();
         }
+
         return self::$uvLoop;
     }
 

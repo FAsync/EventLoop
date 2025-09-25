@@ -42,7 +42,8 @@ expect()->extend('toBeResource', function () {
 expect()->extend('toBeValidTimestamp', function () {
     return $this->toBeFloat()
         ->toBeGreaterThan(0)
-        ->toBeLessThan(time() + 3600);
+        ->toBeLessThan(time() + 3600)
+    ;
 });
 
 /*
@@ -64,6 +65,7 @@ function createTestStream()
     if ($stream === false) {
         throw new RuntimeException('Failed to create test stream');
     }
+
     return $stream;
 }
 
@@ -77,21 +79,23 @@ function createTestSocketPair(): array
     }
 
     $server = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
-    if (!$server) {
+    if (! $server) {
         throw new RuntimeException("Failed to create server socket: $errstr");
     }
 
     $address = stream_socket_get_name($server, false);
     $client = stream_socket_client("tcp://$address", $errno, $errstr);
-    if (!$client) {
+    if (! $client) {
         fclose($server);
+
         throw new RuntimeException("Failed to create client socket: $errstr");
     }
 
     $connection = stream_socket_accept($server);
-    if (!$connection) {
+    if (! $connection) {
         fclose($server);
         fclose($client);
+
         throw new RuntimeException('Failed to accept connection');
     }
 
@@ -108,7 +112,7 @@ function createTestStreamPair(): array
         1 => ['pipe', 'w'],
     ], $pipes);
 
-    if (!$process) {
+    if (! $process) {
         throw new RuntimeException('Failed to create process for stream testing');
     }
 
@@ -125,7 +129,7 @@ function createTestFileStreams(): array
     $writeStream = fopen($tempFile, 'w+');
     $readStream = fopen($tempFile, 'r');
 
-    if (!$writeStream || !$readStream) {
+    if (! $writeStream || ! $readStream) {
         throw new RuntimeException('Failed to create file streams');
     }
 
@@ -158,5 +162,6 @@ function waitFor(callable $condition, float $timeout = 1.0): bool
         }
         usleep(1000);
     }
+
     return false;
 }

@@ -113,7 +113,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
 
             \uv_poll_start($uvPoll, \UV::READABLE, function ($poll, $status, $events) use ($callback, $socketId) {
                 if ($status < 0) {
-                    error_log('UV read poll error: ' . \uv_strerror($status));
+                    error_log('UV read poll error: '.\uv_strerror($status));
 
                     return;
                 }
@@ -121,7 +121,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
                 try {
                     $callback();
                 } catch (\Throwable $e) {
-                    error_log('UV read callback error: ' . $e->getMessage());
+                    error_log('UV read callback error: '.$e->getMessage());
                 }
 
                 \uv_poll_stop($poll);
@@ -133,7 +133,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
 
             return true;
         } catch (\Throwable $e) {
-            error_log('Failed to create UV read watcher: ' . $e->getMessage());
+            error_log('Failed to create UV read watcher: '.$e->getMessage());
 
             return false;
         }
@@ -151,7 +151,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
 
             \uv_poll_start($uvPoll, \UV::WRITABLE, function ($poll, $status, $events) use ($callback, $socketId) {
                 if ($status < 0) {
-                    error_log('UV write poll error: ' . \uv_strerror($status));
+                    error_log('UV write poll error: '.\uv_strerror($status));
 
                     return;
                 }
@@ -159,7 +159,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
                 try {
                     $callback();
                 } catch (\Throwable $e) {
-                    error_log('UV write callback error: ' . $e->getMessage());
+                    error_log('UV write callback error: '.$e->getMessage());
                 }
 
                 \uv_poll_stop($poll);
@@ -171,7 +171,7 @@ final class UVSocketManager extends SocketManager implements SocketManagerInterf
 
             return true;
         } catch (\Throwable $e) {
-            error_log('Failed to create UV write watcher: ' . $e->getMessage());
+            error_log('Failed to create UV write watcher: '.$e->getMessage());
 
             return false;
         }

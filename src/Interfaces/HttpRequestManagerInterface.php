@@ -10,9 +10,9 @@ interface HttpRequestManagerInterface
     /**
      * Adds an HTTP request to the processing queue.
      *
-     * @param string $url The request URL
-     * @param array<int, mixed> $options cURL options
-     * @param callable $callback The completion callback
+     * @param  string  $url  The request URL
+     * @param  array<int, mixed>  $options  cURL options
+     * @param  callable  $callback  The completion callback
      * @return string The request ID
      */
     public function addHttpRequest(string $url, array $options, callable $callback): string;
@@ -20,7 +20,7 @@ interface HttpRequestManagerInterface
     /**
      * Cancels a pending or active HTTP request.
      *
-     * @param string $requestId The request ID to cancel
+     * @param  string  $requestId  The request ID to cancel
      * @return bool True if cancelled, false if not found
      */
     public function cancelHttpRequest(string $requestId): bool;

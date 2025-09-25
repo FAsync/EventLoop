@@ -10,9 +10,9 @@ interface StreamManagerInterface
     /**
      * Adds a new stream watcher.
      *
-     * @param resource $stream The stream resource
-     * @param callable $callback The callback function
-     * @param string $type The watcher type (read/write)
+     * @param  resource  $stream  The stream resource
+     * @param  callable  $callback  The callback function
+     * @param  string  $type  The watcher type (read/write)
      * @return string The watcher ID
      */
     public function addStreamWatcher(mixed $stream, callable $callback, string $type): string;
@@ -20,7 +20,7 @@ interface StreamManagerInterface
     /**
      * Removes a stream watcher by ID.
      *
-     * @param string $watcherId The watcher ID
+     * @param  string  $watcherId  The watcher ID
      * @return bool True if removed, false if not found
      */
     public function removeStreamWatcher(string $watcherId): bool;

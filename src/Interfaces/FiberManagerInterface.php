@@ -12,7 +12,7 @@ interface FiberManagerInterface
     /**
      * Adds a new, unstarted fiber to the processing queue.
      *
-     * @param Fiber<null, mixed, mixed, mixed> $fiber The fiber to add
+     * @param  Fiber<null, mixed, mixed, mixed>  $fiber  The fiber to add
      */
     public function addFiber(Fiber $fiber): void;
 

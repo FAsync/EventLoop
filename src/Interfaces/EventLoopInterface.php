@@ -47,7 +47,6 @@ interface EventLoopInterface
      */
     public function hasTimers(): bool;
 
-
     /**
      * Schedule an asynchronous HTTP request.
      *
@@ -203,7 +202,6 @@ interface EventLoopInterface
      * @return bool True if UV is available and being used, false otherwise
      */
     public function isUsingUv(): bool;
-
 
     /**
      * Get the socket manager instance.

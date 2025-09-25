@@ -30,7 +30,10 @@
     "require-dev": {
         "pestphp/pest": "^4.0",
         "revolt/event-loop": "^1.0",
-        "react/event-loop": "^1.5"
+        "react/event-loop": "^1.5",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "laravel/pint": "^1.25"
     },
     "config": {
         "allow-plugins": {
@@ -41,6 +44,14 @@
         "ext-uv": "More performant event loop using libuv instead of streams"
     },
     "scripts": {
-        "test": "./vendor/bin/pest"
+        "test": "./vendor/bin/pest",
+        "format": "./vendor/bin/pint",
+        "format-test": "./vendor/bin/pint --test",
+        "analyze": "./vendor/bin/phpstan analyse",
+        "qa": [
+            "@format-test",
+            "@analyze",
+            "@test"
+        ]
     }
 }

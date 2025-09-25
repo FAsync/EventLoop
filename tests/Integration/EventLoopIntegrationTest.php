@@ -112,6 +112,7 @@ describe('EventLoop Integration', function () {
 
         $fiber = new Fiber(function () {
             $value = Fiber::suspend('waiting');
+
             return "completed with $value";
         });
 

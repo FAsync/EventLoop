@@ -62,6 +62,7 @@ describe('EventLoop Error Handling', function () {
         // Good fiber
         $goodFiber = new Fiber(function () use (&$goodFiberCompleted) {
             $goodFiberCompleted = true;
+
             return 'success';
         });
 
@@ -110,7 +111,7 @@ describe('EventLoop Error Handling', function () {
 
         // Create invalid resource scenario
         $stream = createTestStream();
-        $loop->addStreamWatcher($stream, fn() => null);
+        $loop->addStreamWatcher($stream, fn () => null);
         fclose($stream); // Close before processing
 
         $loop->addTimer(0.001, function () use (&$executed, $loop) {

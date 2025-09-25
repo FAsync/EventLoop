@@ -10,11 +10,11 @@ interface FileManagerInterface
     /**
      * Adds a new file operation to the processing queue.
      *
-     * @param string $type The operation type
-     * @param string $path The file path
-     * @param mixed $data The operation data
-     * @param callable $callback The completion callback
-     * @param array<string, mixed> $options Additional options
+     * @param  string  $type  The operation type
+     * @param  string  $path  The file path
+     * @param  mixed  $data  The operation data
+     * @param  callable  $callback  The completion callback
+     * @param  array<string, mixed>  $options  Additional options
      * @return string The operation ID
      */
     public function addFileOperation(
@@ -28,7 +28,7 @@ interface FileManagerInterface
     /**
      * Cancels a pending file operation.
      *
-     * @param string $operationId The operation ID to cancel
+     * @param  string  $operationId  The operation ID to cancel
      * @return bool True if cancelled, false if not found
      */
     public function cancelFileOperation(string $operationId): bool;
@@ -36,9 +36,9 @@ interface FileManagerInterface
     /**
      * Adds a new file watcher.
      *
-     * @param string $path The path to watch
-     * @param callable $callback The change callback
-     * @param array<string, mixed> $options Watcher options
+     * @param  string  $path  The path to watch
+     * @param  callable  $callback  The change callback
+     * @param  array<string, mixed>  $options  Watcher options
      * @return string The watcher ID
      */
     public function addFileWatcher(string $path, callable $callback, array $options = []): string;
@@ -46,7 +46,7 @@ interface FileManagerInterface
     /**
      * Removes a file watcher.
      *
-     * @param string $watcherId The watcher ID to remove
+     * @param  string  $watcherId  The watcher ID to remove
      * @return bool True if removed, false if not found
      */
     public function removeFileWatcher(string $watcherId): bool;
