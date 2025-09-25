@@ -3,6 +3,7 @@
 use Dotenv\Dotenv;
 use Hibla\EventLoop\EventLoop;
 use Rcalicdan\Defer\Defer;
+use Rcalicdan\Defer\Handlers\SignalRegistryHandler;
 
 $dotenvPaths = [
     __DIR__.'/../',
@@ -16,7 +17,6 @@ $dotenv = null;
 foreach ($dotenvPaths as $path) {
     if (file_exists($path.'.env') || file_exists($path.'.env.example')) {
         $dotenv = Dotenv::createImmutable($path);
-
         break;
     }
 }
@@ -26,27 +26,19 @@ $dotenv->safeLoad();
 
 function setupGracefulShutdown(EventLoop $eventLoop): void
 {
+    $signalHandler = new SignalRegistryHandler(function () use ($eventLoop) {
+        if ($eventLoop->isRunning()) {
+            $eventLoop->stop();
+        }
+    });
+    
+    $signalHandler->register();
+    
     register_shutdown_function(function () use ($eventLoop) {
         if ($eventLoop->isRunning()) {
             $eventLoop->stop();
         }
     });
-
-    if (function_exists('pcntl_signal')) {
-        $signalHandler = function () use ($eventLoop) {
-            $eventLoop->stop();
-        };
-
-        pcntl_signal(SIGINT, $signalHandler);
-        pcntl_signal(SIGTERM, $signalHandler);
-        pcntl_async_signals(true);
-    } elseif (PHP_OS_FAMILY === 'Windows' && function_exists('sapi_windows_set_ctrl_handler')) {
-        sapi_windows_set_ctrl_handler(function (int $event) use ($eventLoop): void {
-            if (in_array($event, [PHP_WINDOWS_EVENT_CTRL_C, PHP_WINDOWS_EVENT_CTRL_BREAK], true)) {
-                $eventLoop->stop();
-            }
-        });
-    }
 }
 
 $enableEventLoop = filter_var($_ENV['ENABLE_GLOBAL_EVENT_LOOP'] ?? (getenv('ENABLE_GLOBAL_EVENT_LOOP') !== false ? getenv('ENABLE_GLOBAL_EVENT_LOOP') : 'true'), FILTER_VALIDATE_BOOLEAN);
