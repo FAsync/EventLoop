@@ -8,7 +8,7 @@
             "Hibla\\EventLoop\\": "src/"
         },
         "files": [
-            "src/global-event-loop.php"
+            "src/Boot/global-event-loop.php"
         ]
     },
     "autoload-dev": {
