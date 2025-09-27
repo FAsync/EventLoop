@@ -3,4 +3,5 @@
 /.gitignore         export-ignore
 /phpunit.xml        export-ignore
 /phpstan.neon       export-ignore
-/pint.json           export-ignore
+/pint.json          export-ignore
+/.github            export-ignore
