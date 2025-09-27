@@ -28,8 +28,8 @@ class TimerManager implements TimerManagerInterface
 
     public function __construct()
     {
-        $this->executionHandler = new TimerExecutionHandler;
-        $this->scheduleHandler = new TimerScheduleHandler;
+        $this->executionHandler = new TimerExecutionHandler();
+        $this->scheduleHandler = new TimerScheduleHandler();
     }
 
     /**

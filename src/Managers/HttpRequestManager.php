@@ -33,9 +33,9 @@ class HttpRequestManager implements HttpRequestManagerInterface
 
     public function __construct()
     {
-        $this->requestHandler = new HttpRequestHandler;
-        $this->responseHandler = new HttpResponseHandler;
-        $this->curlHandler = new CurlMultiHandler;
+        $this->requestHandler = new HttpRequestHandler();
+        $this->responseHandler = new HttpResponseHandler();
+        $this->curlHandler = new CurlMultiHandler();
         $this->multiHandle = $this->curlHandler->createMultiHandle();
     }
 

@@ -24,8 +24,8 @@ class StreamManager implements StreamManagerInterface
 
     public function __construct()
     {
-        $this->watcherHandler = new StreamWatcherHandler;
-        $this->selectHandler = new StreamSelectHandler;
+        $this->watcherHandler = new StreamWatcherHandler();
+        $this->selectHandler = new StreamSelectHandler();
     }
 
     /**

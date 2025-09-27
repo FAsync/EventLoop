@@ -29,7 +29,7 @@ final class UVComponentFactory
 
     public static function createStreamManager(): StreamManager
     {
-        return new StreamManager;
+        return new StreamManager();
     }
 
     public static function createSocketManager(): UVSocketManager

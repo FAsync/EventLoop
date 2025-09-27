@@ -4,13 +4,13 @@ use Hibla\EventLoop\Managers\FiberManager;
 
 describe('FiberManager', function () {
     it('starts with no fibers', function () {
-        $manager = new FiberManager;
+        $manager = new FiberManager();
         expect($manager->hasFibers())->toBeFalse();
         expect($manager->hasActiveFibers())->toBeFalse();
     });
 
     it('can add and process fibers', function () {
-        $manager = new FiberManager;
+        $manager = new FiberManager();
         $executed = false;
 
         $fiber = new Fiber(function () use (&$executed) {
@@ -28,7 +28,7 @@ describe('FiberManager', function () {
     });
 
     it('handles suspended fibers', function () {
-        $manager = new FiberManager;
+        $manager = new FiberManager();
         $step = 0;
 
         $fiber = new Fiber(function () use (&$step) {
@@ -55,7 +55,7 @@ describe('FiberManager', function () {
     });
 
     it('can prepare for shutdown', function () {
-        $manager = new FiberManager;
+        $manager = new FiberManager();
 
         expect($manager->isAcceptingNewFibers())->toBeTrue();
 
@@ -71,7 +71,7 @@ describe('FiberManager', function () {
     });
 
     it('can clear all fibers', function () {
-        $manager = new FiberManager;
+        $manager = new FiberManager();
 
         $fiber1 = new Fiber(fn () => 'test1');
         $fiber2 = new Fiber(fn () => 'test2');
@@ -87,7 +87,7 @@ describe('FiberManager', function () {
     });
 
     it('processes new fibers before suspended ones', function () {
-        $manager = new FiberManager;
+        $manager = new FiberManager();
         $order = [];
 
         // Add a suspended fiber first

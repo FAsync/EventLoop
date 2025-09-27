@@ -4,14 +4,14 @@ use Hibla\EventLoop\Managers\FileManager;
 
 describe('FileManager', function () {
     it('starts with no work', function () {
-        $manager = new FileManager;
+        $manager = new FileManager();
         expect($manager->hasWork())->toBeFalse();
         expect($manager->hasPendingOperations())->toBeFalse();
         expect($manager->hasWatchers())->toBeFalse();
     });
 
     it('can add file operations', function () {
-        $manager = new FileManager;
+        $manager = new FileManager();
         $tempFile = tempnam(sys_get_temp_dir(), 'test');
 
         $operationId = $manager->addFileOperation(
@@ -29,7 +29,7 @@ describe('FileManager', function () {
     });
 
     it('can cancel file operations', function () {
-        $manager = new FileManager;
+        $manager = new FileManager();
         $tempFile = tempnam(sys_get_temp_dir(), 'test');
 
         $operationId = $manager->addFileOperation(
@@ -49,7 +49,7 @@ describe('FileManager', function () {
     });
 
     it('can add file watchers', function () {
-        $manager = new FileManager;
+        $manager = new FileManager();
         $tempFile = tempnam(sys_get_temp_dir(), 'test');
 
         $watcherId = $manager->addFileWatcher(
@@ -65,7 +65,7 @@ describe('FileManager', function () {
     });
 
     it('can remove file watchers', function () {
-        $manager = new FileManager;
+        $manager = new FileManager();
         $tempFile = tempnam(sys_get_temp_dir(), 'test');
 
         $watcherId = $manager->addFileWatcher($tempFile, fn () => null);
@@ -82,7 +82,7 @@ describe('FileManager', function () {
     });
 
     it('processes file operations', function () {
-        $manager = new FileManager;
+        $manager = new FileManager();
         $tempFile = tempnam(sys_get_temp_dir(), 'test');
         $called = false;
 
@@ -104,7 +104,7 @@ describe('FileManager', function () {
     });
 
     it('can clear all operations', function () {
-        $manager = new FileManager;
+        $manager = new FileManager();
         $tempFile1 = tempnam(sys_get_temp_dir(), 'test1');
         $tempFile2 = tempnam(sys_get_temp_dir(), 'test2');
 
@@ -124,7 +124,7 @@ describe('FileManager', function () {
     });
 
     it('handles operation with options', function () {
-        $manager = new FileManager;
+        $manager = new FileManager();
         $tempFile = tempnam(sys_get_temp_dir(), 'test');
 
         $operationId = $manager->addFileOperation(

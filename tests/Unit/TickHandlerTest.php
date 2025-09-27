@@ -4,14 +4,14 @@ use Hibla\EventLoop\Handlers\TickHandler;
 
 describe('TickHandler', function () {
     it('starts with no callbacks', function () {
-        $handler = new TickHandler;
+        $handler = new TickHandler();
 
         expect($handler->hasTickCallbacks())->toBeFalse();
         expect($handler->hasDeferredCallbacks())->toBeFalse();
     });
 
     it('can add next tick callbacks', function () {
-        $handler = new TickHandler;
+        $handler = new TickHandler();
         $executed = false;
 
         $handler->addNextTick(function () use (&$executed) {
@@ -27,7 +27,7 @@ describe('TickHandler', function () {
     });
 
     it('can add deferred callbacks', function () {
-        $handler = new TickHandler;
+        $handler = new TickHandler();
         $executed = false;
 
         $handler->addDeferred(function () use (&$executed) {
@@ -43,7 +43,7 @@ describe('TickHandler', function () {
     });
 
     it('processes callbacks in batches', function () {
-        $handler = new TickHandler;
+        $handler = new TickHandler();
         $executed = 0;
 
         // Add more than batch size (100) callbacks
@@ -67,7 +67,7 @@ describe('TickHandler', function () {
     });
 
     it('handles callback exceptions gracefully', function () {
-        $handler = new TickHandler;
+        $handler = new TickHandler();
         $executed = false;
 
         $handler->addNextTick(function () {
@@ -84,7 +84,7 @@ describe('TickHandler', function () {
     });
 
     it('can clear all callbacks', function () {
-        $handler = new TickHandler;
+        $handler = new TickHandler();
 
         $handler->addNextTick(fn () => null);
         $handler->addDeferred(fn () => null);

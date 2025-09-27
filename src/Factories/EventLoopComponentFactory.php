@@ -27,7 +27,7 @@ final class EventLoopComponentFactory
             return UVComponentFactory::createTimerManager();
         }
 
-        return new TimerManager;
+        return new TimerManager();
     }
 
     public static function createStreamManager(): StreamManager
@@ -36,7 +36,7 @@ final class EventLoopComponentFactory
             return UVComponentFactory::createStreamManager();
         }
 
-        return new StreamManager;
+        return new StreamManager();
     }
 
     public static function createSocketManager(): SocketManager
@@ -45,7 +45,7 @@ final class EventLoopComponentFactory
             return UVComponentFactory::createSocketManager();
         }
 
-        return new SocketManager;
+        return new SocketManager();
     }
 
     public static function createWorkHandler(

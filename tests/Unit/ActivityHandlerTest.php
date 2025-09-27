@@ -4,7 +4,7 @@ use Hibla\EventLoop\Handlers\ActivityHandler;
 
 describe('ActivityHandler', function () {
     it('initializes with current timestamp', function () {
-        $handler = new ActivityHandler;
+        $handler = new ActivityHandler();
         $lastActivity = $handler->getLastActivity();
 
         expect($lastActivity)->toBeValidTimestamp();
@@ -12,7 +12,7 @@ describe('ActivityHandler', function () {
     });
 
     it('updates activity timestamp', function () {
-        $handler = new ActivityHandler;
+        $handler = new ActivityHandler();
         $initialTime = $handler->getLastActivity();
 
         usleep(1000);
@@ -22,7 +22,7 @@ describe('ActivityHandler', function () {
     });
 
     it('tracks activity counter', function () {
-        $handler = new ActivityHandler;
+        $handler = new ActivityHandler();
         $initialStats = $handler->getActivityStats();
 
         expect($initialStats['counter'])->toBe(0);
@@ -35,7 +35,7 @@ describe('ActivityHandler', function () {
     });
 
     it('calculates average activity interval', function () {
-        $handler = new ActivityHandler;
+        $handler = new ActivityHandler();
 
         $handler->updateLastActivity();
         usleep(10000);
@@ -48,7 +48,7 @@ describe('ActivityHandler', function () {
     });
 
     it('detects idle state correctly', function () {
-        $handler = new ActivityHandler;
+        $handler = new ActivityHandler();
 
         expect($handler->isIdle())->toBeFalse();
 
@@ -57,7 +57,7 @@ describe('ActivityHandler', function () {
     });
 
     it('provides comprehensive activity stats', function () {
-        $handler = new ActivityHandler;
+        $handler = new ActivityHandler();
         $handler->updateLastActivity();
 
         $stats = $handler->getActivityStats();

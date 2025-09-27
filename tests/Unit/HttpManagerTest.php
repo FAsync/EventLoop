@@ -4,12 +4,12 @@ use Hibla\EventLoop\Managers\HttpRequestManager;
 
 describe('HttpRequestManager', function () {
     it('starts with no requests', function () {
-        $manager = new HttpRequestManager;
+        $manager = new HttpRequestManager();
         expect($manager->hasRequests())->toBeFalse();
     });
 
     it('can add HTTP requests', function () {
-        $manager = new HttpRequestManager;
+        $manager = new HttpRequestManager();
         $called = false;
 
         $requestId = $manager->addHttpRequest(
@@ -25,7 +25,7 @@ describe('HttpRequestManager', function () {
     });
 
     it('can cancel HTTP requests', function () {
-        $manager = new HttpRequestManager;
+        $manager = new HttpRequestManager();
         $called = false;
 
         $requestId = $manager->addHttpRequest(
@@ -45,7 +45,7 @@ describe('HttpRequestManager', function () {
     });
 
     it('provides debug information', function () {
-        $manager = new HttpRequestManager;
+        $manager = new HttpRequestManager();
 
         $manager->addHttpRequest('https://httpbin.org/get', [], fn () => null);
 
@@ -64,7 +64,7 @@ describe('HttpRequestManager', function () {
     });
 
     it('can clear all requests', function () {
-        $manager = new HttpRequestManager;
+        $manager = new HttpRequestManager();
         $callCount = 0;
 
         $manager->addHttpRequest('https://httpbin.org/get', [], function () use (&$callCount) {
@@ -86,7 +86,7 @@ describe('HttpRequestManager', function () {
     });
 
     it('can clear pending requests only', function () {
-        $manager = new HttpRequestManager;
+        $manager = new HttpRequestManager();
 
         $manager->addHttpRequest('https://httpbin.org/get', [], fn () => null);
         $manager->addHttpRequest('https://httpbin.org/post', [], fn () => null);
@@ -98,7 +98,7 @@ describe('HttpRequestManager', function () {
     });
 
     it('processes requests when called', function () {
-        $manager = new HttpRequestManager;
+        $manager = new HttpRequestManager();
 
         $manager->addHttpRequest('https://httpbin.org/get', [], fn () => null);
 

@@ -33,8 +33,8 @@ class FileManager implements FileManagerInterface
 
     public function __construct()
     {
-        $this->operationHandler = new FileOperationHandler;
-        $this->watcherHandler = new FileWatcherHandler;
+        $this->operationHandler = new FileOperationHandler();
+        $this->watcherHandler = new FileWatcherHandler();
     }
 
     /**

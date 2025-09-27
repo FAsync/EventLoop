@@ -11,14 +11,14 @@ beforeEach(function () {
 
 describe('UVSocketManager', function () {
     it('can create a UV socket manager', function () {
-        $socketManager = new UVSocketManager;
+        $socketManager = new UVSocketManager();
 
         expect($socketManager)->toBeInstanceOf(UVSocketManager::class);
         expect($socketManager->hasWatchers())->toBeFalse();
     });
 
     it('can add a read watcher', function () {
-        $socketManager = new UVSocketManager;
+        $socketManager = new UVSocketManager();
         [$readSocket, $writeSocket] = createTestSocketPair();
         $callbackExecuted = false;
 
@@ -47,7 +47,7 @@ describe('UVSocketManager', function () {
     });
 
     it('can add a write watcher', function () {
-        $socketManager = new UVSocketManager;
+        $socketManager = new UVSocketManager();
         [$readSocket, $writeSocket] = createTestSocketPair();
         $callbackExecuted = false;
 
@@ -72,7 +72,7 @@ describe('UVSocketManager', function () {
     });
 
     it('can remove watchers', function () {
-        $socketManager = new UVSocketManager;
+        $socketManager = new UVSocketManager();
         [$readSocket, $writeSocket] = createTestSocketPair();
 
         $socketManager->addReadWatcher($readSocket, function () {});
@@ -90,7 +90,7 @@ describe('UVSocketManager', function () {
     });
 
     it('can clear all watchers', function () {
-        $socketManager = new UVSocketManager;
+        $socketManager = new UVSocketManager();
         [$readSocket1, $writeSocket1] = createTestSocketPair();
         [$readSocket2, $writeSocket2] = createTestSocketPair();
 
@@ -110,7 +110,7 @@ describe('UVSocketManager', function () {
     });
 
     it('can clear all watchers for specific socket', function () {
-        $socketManager = new UVSocketManager;
+        $socketManager = new UVSocketManager();
         [$readSocket1, $writeSocket1] = createTestSocketPair();
         [$readSocket2, $writeSocket2] = createTestSocketPair();
 
@@ -130,7 +130,7 @@ describe('UVSocketManager', function () {
     });
 
     it('handles non-resource gracefully', function () {
-        $socketManager = new UVSocketManager;
+        $socketManager = new UVSocketManager();
 
         // Should fall back to parent implementation
         $socketManager->addReadWatcher('not-a-resource', function () {});
@@ -141,7 +141,7 @@ describe('UVSocketManager', function () {
     });
 
     it('handles callback exceptions gracefully', function () {
-        $socketManager = new UVSocketManager;
+        $socketManager = new UVSocketManager();
         [$readSocket, $writeSocket] = createTestSocketPair();
         $secondCallbackExecuted = false;
 

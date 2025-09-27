@@ -11,14 +11,14 @@ beforeEach(function () {
 
 describe('UVTimerManager', function () {
     it('can create a UV timer manager', function () {
-        $timerManager = new UVTimerManager;
+        $timerManager = new UVTimerManager();
 
         expect($timerManager)->toBeInstanceOf(UVTimerManager::class);
         expect($timerManager->hasTimers())->toBeFalse();
     });
 
     it('can add and execute a single timer', function () {
-        $timerManager = new UVTimerManager;
+        $timerManager = new UVTimerManager();
         $executed = false;
 
         $timerId = $timerManager->addTimer(0.01, function () use (&$executed) {
@@ -43,7 +43,7 @@ describe('UVTimerManager', function () {
     });
 
     it('can add and execute a periodic timer', function () {
-        $timerManager = new UVTimerManager;
+        $timerManager = new UVTimerManager();
         $executionCount = 0;
         $maxExecutions = 3;
 
@@ -68,7 +68,7 @@ describe('UVTimerManager', function () {
     });
 
     it('can cancel a timer before execution', function () {
-        $timerManager = new UVTimerManager;
+        $timerManager = new UVTimerManager();
         $executed = false;
 
         $timerId = $timerManager->addTimer(0.1, function () use (&$executed) {
@@ -91,7 +91,7 @@ describe('UVTimerManager', function () {
     });
 
     it('can get timer statistics', function () {
-        $timerManager = new UVTimerManager;
+        $timerManager = new UVTimerManager();
 
         $timer1 = $timerManager->addTimer(0.1, function () {});
         $timer2 = $timerManager->addPeriodicTimer(0.05, function () {}, 2);
@@ -111,7 +111,7 @@ describe('UVTimerManager', function () {
     });
 
     it('handles callback exceptions gracefully', function () {
-        $timerManager = new UVTimerManager;
+        $timerManager = new UVTimerManager();
         $secondExecuted = false;
 
         $timerManager->addTimer(0.01, function () {

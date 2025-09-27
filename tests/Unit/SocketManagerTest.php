@@ -4,12 +4,12 @@ use Hibla\EventLoop\Managers\SocketManager;
 
 describe('SocketManager', function () {
     it('starts with no watchers', function () {
-        $manager = new SocketManager;
+        $manager = new SocketManager();
         expect($manager->hasWatchers())->toBeFalse();
     });
 
     it('can add read watchers', function () {
-        $manager = new SocketManager;
+        $manager = new SocketManager();
         [$socket1, $socket2] = createTestSocketPair();
         $called = false;
 
@@ -30,7 +30,7 @@ describe('SocketManager', function () {
     });
 
     it('can add write watchers', function () {
-        $manager = new SocketManager;
+        $manager = new SocketManager();
         [$socket1, $socket2] = createTestSocketPair();
         $called = false;
 
@@ -49,7 +49,7 @@ describe('SocketManager', function () {
     });
 
     it('can remove watchers', function () {
-        $manager = new SocketManager;
+        $manager = new SocketManager();
         [$socket1, $socket2] = createTestSocketPair();
 
         $manager->addReadWatcher($socket1, fn () => null);
@@ -67,7 +67,7 @@ describe('SocketManager', function () {
     });
 
     it('handles multiple watchers per socket', function () {
-        $manager = new SocketManager;
+        $manager = new SocketManager();
         [$socket1, $socket2] = createTestSocketPair();
         $callCount = 0;
 
@@ -91,7 +91,7 @@ describe('SocketManager', function () {
     });
 
     it('handles callback exceptions gracefully', function () {
-        $manager = new SocketManager;
+        $manager = new SocketManager();
         [$socket1, $socket2] = createTestSocketPair();
         $goodCallbackExecuted = false;
 
@@ -114,7 +114,7 @@ describe('SocketManager', function () {
     });
 
     it('can clear all watchers', function () {
-        $manager = new SocketManager;
+        $manager = new SocketManager();
         [$socket1, $socket2] = createTestSocketPair();
 
         $manager->addReadWatcher($socket1, fn () => null);
@@ -131,7 +131,7 @@ describe('SocketManager', function () {
     });
 
     it('can clear watchers for specific socket', function () {
-        $manager = new SocketManager;
+        $manager = new SocketManager();
         [$socket1, $socket2] = createTestSocketPair();
         [$socket3, $socket4] = createTestSocketPair();
 

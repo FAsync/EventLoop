@@ -4,12 +4,12 @@ use Hibla\EventLoop\Managers\StreamManager;
 
 describe('StreamManager', function () {
     it('starts with no watchers', function () {
-        $manager = new StreamManager;
+        $manager = new StreamManager();
         expect($manager->hasWatchers())->toBeFalse();
     });
 
     it('can add stream watchers', function () {
-        $manager = new StreamManager;
+        $manager = new StreamManager();
         $stream = createTestStream();
 
         $watcherId = $manager->addStreamWatcher($stream, fn () => null);
@@ -21,7 +21,7 @@ describe('StreamManager', function () {
     });
 
     it('can remove stream watchers', function () {
-        $manager = new StreamManager;
+        $manager = new StreamManager();
         $stream = createTestStream();
 
         $watcherId = $manager->addStreamWatcher($stream, fn () => null);
@@ -38,7 +38,7 @@ describe('StreamManager', function () {
     });
 
     it('processes ready streams', function () {
-        $manager = new StreamManager;
+        $manager = new StreamManager();
         $stream = createTestStream();
         $called = false;
 
@@ -58,7 +58,7 @@ describe('StreamManager', function () {
     });
 
     it('handles multiple stream types', function () {
-        $manager = new StreamManager;
+        $manager = new StreamManager();
         $stream1 = createTestStream();
         $stream2 = createTestStream();
 
@@ -89,7 +89,7 @@ describe('StreamManager', function () {
     });
 
     it('can clear all watchers', function () {
-        $manager = new StreamManager;
+        $manager = new StreamManager();
         $stream1 = createTestStream();
         $stream2 = createTestStream();
 

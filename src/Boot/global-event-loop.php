@@ -17,6 +17,7 @@ $dotenv = null;
 foreach ($dotenvPaths as $path) {
     if (file_exists($path . '.env') || file_exists($path . '.env.example')) {
         $dotenv = Dotenv::createImmutable($path);
+
         break;
     }
 }

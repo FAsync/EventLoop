@@ -29,9 +29,9 @@ class FiberManager implements FiberManagerInterface
 
     public function __construct()
     {
-        $this->startHandler = new FiberStartHandler;
-        $this->resumeHandler = new FiberResumeHandler;
-        $this->stateHandler = new FiberStateHandler;
+        $this->startHandler = new FiberStartHandler();
+        $this->resumeHandler = new FiberResumeHandler();
+        $this->stateHandler = new FiberStateHandler();
     }
 
     /**

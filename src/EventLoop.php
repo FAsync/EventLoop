@@ -88,13 +88,13 @@ final class EventLoop implements EventLoopInterface
     private function __construct()
     {
         $this->timerManager = EventLoopComponentFactory::createTimerManager();
-        $this->httpRequestManager = new HttpRequestManager;
+        $this->httpRequestManager = new HttpRequestManager();
         $this->streamManager = EventLoopComponentFactory::createStreamManager();
-        $this->fiberManager = new FiberManager;
-        $this->tickHandler = new TickHandler;
-        $this->activityHandler = new ActivityHandler;
-        $this->stateHandler = new StateHandler;
-        $this->fileManager = new FileManager;
+        $this->fiberManager = new FiberManager();
+        $this->tickHandler = new TickHandler();
+        $this->activityHandler = new ActivityHandler();
+        $this->stateHandler = new StateHandler();
+        $this->fileManager = new FileManager();
         $this->socketManager = EventLoopComponentFactory::createSocketManager();
 
         $this->workHandler = EventLoopComponentFactory::createWorkHandler(
@@ -154,7 +154,7 @@ final class EventLoop implements EventLoopInterface
     public static function getInstance(): self
     {
         if (self::$instance === null) {
-            self::$instance = new self;
+            self::$instance = new self();
         }
 
         return self::$instance;

@@ -4,12 +4,12 @@ use Hibla\EventLoop\Handlers\StateHandler;
 
 describe('StateHandler', function () {
     it('initializes in running state', function () {
-        $handler = new StateHandler;
+        $handler = new StateHandler();
         expect($handler->isRunning())->toBeTrue();
     });
 
     it('can stop gracefully', function () {
-        $handler = new StateHandler;
+        $handler = new StateHandler();
         $handler->stop();
 
         expect($handler->isRunning())->toBeFalse();
@@ -18,7 +18,7 @@ describe('StateHandler', function () {
     });
 
     it('can force stop', function () {
-        $handler = new StateHandler;
+        $handler = new StateHandler();
         $handler->forceStop();
 
         expect($handler->isRunning())->toBeFalse();
@@ -26,7 +26,7 @@ describe('StateHandler', function () {
     });
 
     it('tracks stop request time', function () {
-        $handler = new StateHandler;
+        $handler = new StateHandler();
         $beforeStop = microtime(true);
 
         $handler->stop();
@@ -36,7 +36,7 @@ describe('StateHandler', function () {
     });
 
     it('handles graceful shutdown timeout', function () {
-        $handler = new StateHandler;
+        $handler = new StateHandler();
         $handler->setGracefulShutdownTimeout(0.1);
 
         expect($handler->getGracefulShutdownTimeout())->toBe(0.1);
@@ -49,7 +49,7 @@ describe('StateHandler', function () {
     });
 
     it('can restart after stop', function () {
-        $handler = new StateHandler;
+        $handler = new StateHandler();
         $handler->stop();
         expect($handler->isRunning())->toBeFalse();
 
@@ -60,7 +60,7 @@ describe('StateHandler', function () {
     });
 
     it('enforces minimum timeout', function () {
-        $handler = new StateHandler;
+        $handler = new StateHandler();
         $handler->setGracefulShutdownTimeout(0.05);
 
         expect($handler->getGracefulShutdownTimeout())->toBe(0.1);

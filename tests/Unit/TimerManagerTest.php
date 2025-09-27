@@ -4,12 +4,12 @@ use Hibla\EventLoop\Managers\TimerManager;
 
 describe('TimerManager', function () {
     it('starts with no timers', function () {
-        $manager = new TimerManager;
+        $manager = new TimerManager();
         expect($manager->hasTimers())->toBeFalse();
     });
 
     it('can add and track timers', function () {
-        $manager = new TimerManager;
+        $manager = new TimerManager();
         $timerId = $manager->addTimer(0.1, fn () => null);
 
         expect($timerId)->toBeString();
@@ -18,7 +18,7 @@ describe('TimerManager', function () {
     });
 
     it('can cancel timers', function () {
-        $manager = new TimerManager;
+        $manager = new TimerManager();
         $timerId = $manager->addTimer(0.1, fn () => null);
 
         expect($manager->cancelTimer($timerId))->toBeTrue();
@@ -30,7 +30,7 @@ describe('TimerManager', function () {
     });
 
     it('executes ready timers', function () {
-        $manager = new TimerManager;
+        $manager = new TimerManager();
         $executed = false;
 
         $manager->addTimer(0.001, function () use (&$executed) {
@@ -46,7 +46,7 @@ describe('TimerManager', function () {
     });
 
     it('handles periodic timers', function () {
-        $manager = new TimerManager;
+        $manager = new TimerManager();
         $executed = 0;
 
         $timerId = $manager->addPeriodicTimer(0.001, function () use (&$executed) {
@@ -64,7 +64,7 @@ describe('TimerManager', function () {
     });
 
     it('calculates next timer delay', function () {
-        $manager = new TimerManager;
+        $manager = new TimerManager();
 
         // No timers
         expect($manager->getNextTimerDelay())->toBeNull();
@@ -78,7 +78,7 @@ describe('TimerManager', function () {
     });
 
     it('provides timer statistics', function () {
-        $manager = new TimerManager;
+        $manager = new TimerManager();
 
         $manager->addTimer(0.1, fn () => null);
         $manager->addPeriodicTimer(0.1, fn () => null, 5);
@@ -98,7 +98,7 @@ describe('TimerManager', function () {
     });
 
     it('provides individual timer info', function () {
-        $manager = new TimerManager;
+        $manager = new TimerManager();
         $timerId = $manager->addTimer(0.1, fn () => null);
 
         $info = $manager->getTimerInfo($timerId);
@@ -112,7 +112,7 @@ describe('TimerManager', function () {
     });
 
     it('can clear all timers', function () {
-        $manager = new TimerManager;
+        $manager = new TimerManager();
 
         $manager->addTimer(0.1, fn () => null);
         $manager->addPeriodicTimer(0.1, fn () => null);
