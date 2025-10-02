@@ -5,8 +5,11 @@ use Hibla\EventLoop\EventLoop;
 use Rcalicdan\Defer\Defer;
 use Rcalicdan\Defer\Handlers\SignalRegistryHandler;
 
+$cwd = getcwd();
+$currentDir = $cwd !== false ? $cwd : __DIR__;
+
 $possibleRoots = [
-    getcwd(), 
+    $currentDir, 
     dirname(__DIR__, 5), 
     dirname(__DIR__, 4),
     dirname(__DIR__, 3),
@@ -22,7 +25,11 @@ foreach ($possibleRoots as $path) {
     }
 }
 
-$dotenv = $dotenv ?: Dotenv::createImmutable(getcwd());
+if ($dotenv === null) {
+    $cwd = getcwd();
+    $dotenv = Dotenv::createImmutable($cwd !== false ? $cwd : __DIR__);
+}
+
 $dotenv->safeLoad();
 
 function setupGracefulShutdown(EventLoop $eventLoop): void
@@ -63,5 +70,5 @@ try {
         });
     }
 } finally {
-    EventLoop::getInstance()->reset();
+    EventLoop::reset();
 }
