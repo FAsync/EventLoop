@@ -30,7 +30,6 @@ function setupGracefulShutdown(EventLoop $eventLoop): void
     $signalHandler = new SignalRegistryHandler(function () use ($eventLoop) {
         if ($eventLoop->isRunning()) {
             $eventLoop->stop();
-            $eventLoop->reset();
         }
     });
 
@@ -39,7 +38,6 @@ function setupGracefulShutdown(EventLoop $eventLoop): void
     register_shutdown_function(function () use ($eventLoop) {
         if ($eventLoop->isRunning()) {
             $eventLoop->stop();
-            $eventLoop->reset();
         }
     });
 }
@@ -51,15 +49,19 @@ $enableEventLoop = filter_var(
     FILTER_VALIDATE_BOOLEAN
 );
 
-if ($enableEventLoop) {
-    Defer::global(function () {
-        $eventLoop = EventLoop::getInstance();
-        setupGracefulShutdown($eventLoop);
+try {
+    if ($enableEventLoop) {
+        Defer::global(function () {
+            $eventLoop = EventLoop::getInstance();
+            setupGracefulShutdown($eventLoop);
 
-        try {
-            $eventLoop->run();
-        } catch (Throwable $e) {
-            $eventLoop->stop();
-        }
-    });
+            try {
+                $eventLoop->run();
+            } catch (Throwable $e) {
+                $eventLoop->stop();
+            }
+        });
+    }
+} finally {
+    EventLoop::getInstance()->reset();
 }
