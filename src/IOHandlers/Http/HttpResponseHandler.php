@@ -37,7 +37,9 @@ final readonly class HttpResponseHandler
             CURL_HTTP_VERSION_1_0 => '1.0',
             CURL_HTTP_VERSION_1_1 => '1.1',
             CURL_HTTP_VERSION_2_0 => '2.0',
-            CURL_HTTP_VERSION_3 => '3.0',
+            '3.0', '3' => defined('CURL_HTTP_VERSION_3')
+                ? CURL_HTTP_VERSION_3
+                : CURL_HTTP_VERSION_1_1,
             default => null
         };
 
