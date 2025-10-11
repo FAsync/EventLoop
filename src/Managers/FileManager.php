@@ -33,7 +33,10 @@ class FileManager implements FileManagerInterface
 
     public function __construct()
     {
-        $this->operationHandler = new FileOperationHandler();
+        // Pass a cleanup callback to the operation handler
+        $this->operationHandler = new FileOperationHandler(
+            fn(string $operationId) => $this->removeCompletedOperation($operationId)
+        );
         $this->watcherHandler = new FileWatcherHandler();
     }
 
@@ -77,8 +80,7 @@ class FileManager implements FileManagerInterface
         $operationToCancel = $this->operationsById[$operationId];
         $operationToCancel->cancel();
 
-        // Use array_filter for a cleaner, type-safe removal from the pending queue.
-        // This always returns a valid list, satisfying the property type.
+        // Remove from pending queue if it hasn't started yet
         $this->pendingOperations = array_values(
             array_filter(
                 $this->pendingOperations,
@@ -86,9 +88,21 @@ class FileManager implements FileManagerInterface
             )
         );
 
-        unset($this->operationsById[$operationId]);
+        // Keep in operationsById map so streaming operations can check isCancelled()
+        // The operation will be removed by completeOperation() callback
 
         return true;
+    }
+
+    /**
+     * Removes a completed operation from tracking.
+     * Called by FileOperationHandler when an operation completes, fails, or is cancelled.
+     *
+     * @param  string  $operationId  The unique ID of the operation to remove.
+     */
+    private function removeCompletedOperation(string $operationId): void
+    {
+        unset($this->operationsById[$operationId]);
     }
 
     /**
@@ -168,8 +182,8 @@ class FileManager implements FileManagerInterface
         foreach ($operationsToProcess as $operation) {
             // Skip cancelled operations entirely
             if ($operation->isCancelled()) {
+                // Clean up immediately for cancelled operations
                 unset($this->operationsById[$operation->getId()]);
-
                 continue;
             }
 
@@ -177,8 +191,8 @@ class FileManager implements FileManagerInterface
                 $processed = true;
             }
 
-            // Clean up from ID map after execution
-            unset($this->operationsById[$operation->getId()]);
+            // Don't clean up from ID map here - streaming operations need to stay tracked
+            // They will be cleaned up by the completeOperation() callback
         }
 
         return $processed;
@@ -202,7 +216,9 @@ class FileManager implements FileManagerInterface
      */
     public function hasWork(): bool
     {
-        return count($this->pendingOperations) > 0 || count($this->watchers) > 0;
+        return count($this->pendingOperations) > 0 
+            || count($this->operationsById) > 0 
+            || count($this->watchers) > 0;
     }
 
     /**
@@ -212,7 +228,7 @@ class FileManager implements FileManagerInterface
      */
     public function hasPendingOperations(): bool
     {
-        return count($this->pendingOperations) > 0;
+        return count($this->pendingOperations) > 0 || count($this->operationsById) > 0;
     }
 
     /**
@@ -232,6 +248,10 @@ class FileManager implements FileManagerInterface
     public function clearAllOperations(): void
     {
         foreach ($this->pendingOperations as $operation) {
+            $operation->cancel();
+        }
+
+        foreach ($this->operationsById as $operation) {
             $operation->cancel();
         }
 

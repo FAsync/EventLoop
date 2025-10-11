@@ -10,9 +10,16 @@ use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
 
-final readonly class FileOperationHandler
+final class FileOperationHandler
 {
     private const CHUNK_SIZE = 8192;
+
+    /**
+     * @param callable|null $onOperationComplete Callback to notify when operation completes: fn(string $operationId): void
+     */
+    public function __construct(
+        private  $onOperationComplete = null
+    ) {}
 
     /**
      * @param  array<string, mixed>  $options
@@ -30,6 +37,7 @@ final readonly class FileOperationHandler
     public function executeOperation(FileOperation $operation): bool
     {
         if ($operation->isCancelled()) {
+            $this->completeOperation($operation);
             return false;
         }
 
@@ -40,6 +48,16 @@ final readonly class FileOperationHandler
         }
 
         return true;
+    }
+
+    /**
+     * Notify that an operation has completed (success, error, or cancellation)
+     */
+    private function completeOperation(FileOperation $operation): void
+    {
+        if ($this->onOperationComplete !== null) {
+            ($this->onOperationComplete)($operation->getId());
+        }
     }
 
     private function shouldUseStreaming(FileOperation $operation): bool
@@ -59,6 +77,7 @@ final readonly class FileOperationHandler
     private function handleWriteFromGenerator(FileOperation $operation): void
     {
         if ($operation->isCancelled()) {
+            $this->completeOperation($operation);
             return;
         }
 
@@ -76,7 +95,7 @@ final readonly class FileOperationHandler
             if (! is_dir($dir)) {
                 if (! mkdir($dir, 0755, true)) {
                     $operation->executeCallback("Failed to create directory: $dir");
-
+                    $this->completeOperation($operation);
                     return;
                 }
             }
@@ -91,7 +110,7 @@ final readonly class FileOperationHandler
         $stream = @fopen($path, $mode);
         if ($stream === false) {
             $operation->executeCallback("Failed to open file for writing: $path");
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -124,9 +143,10 @@ final readonly class FileOperationHandler
         string &$currentChunk,
         int &$chunkOffset
     ): void {
+        // Check for cancellation at the start of each iteration
         if ($operation->isCancelled()) {
             fclose($stream);
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -134,11 +154,19 @@ final readonly class FileOperationHandler
         $chunksProcessed = 0;
 
         while ($chunksProcessed < $chunksPerTick) {
+            // Check cancellation in the loop
+            // @phpstan-ignore-next-line if.alwaysFalse
+            if ($operation->isCancelled()) {
+                fclose($stream);
+                $this->completeOperation($operation);
+                return;
+            }
+
             if ($chunkOffset >= strlen($currentChunk)) {
                 if (! $generator->valid()) {
                     fclose($stream);
                     $operation->executeCallback(null, $bytesWritten);
-
+                    $this->completeOperation($operation);
                     return;
                 }
 
@@ -147,7 +175,7 @@ final readonly class FileOperationHandler
                 if (! is_string($chunkValue)) {
                     fclose($stream);
                     $operation->executeCallback('Generator must yield string chunks');
-
+                    $this->completeOperation($operation);
                     return;
                 }
 
@@ -162,7 +190,7 @@ final readonly class FileOperationHandler
             if ($written === false) {
                 fclose($stream);
                 $operation->executeCallback('Failed to write to file');
-
+                $this->completeOperation($operation);
                 return;
             }
 
@@ -211,6 +239,7 @@ final readonly class FileOperationHandler
     private function handleReadAsGenerator(FileOperation $operation): void
     {
         if ($operation->isCancelled()) {
+            $this->completeOperation($operation);
             return;
         }
 
@@ -219,13 +248,13 @@ final readonly class FileOperationHandler
 
         if (! file_exists($path)) {
             $operation->executeCallback("File does not exist: $path");
-
+            $this->completeOperation($operation);
             return;
         }
 
         if (! is_readable($path)) {
             $operation->executeCallback("File is not readable: $path");
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -238,6 +267,7 @@ final readonly class FileOperationHandler
         }
 
         $operation->executeCallback(null, $generator);
+        $this->completeOperation($operation);
     }
 
     /**
@@ -385,15 +415,12 @@ final readonly class FileOperationHandler
         switch ($operation->getType()) {
             case 'read':
                 $this->handleStreamingRead($operation);
-
                 break;
             case 'write':
                 $this->handleStreamingWrite($operation);
-
                 break;
             case 'copy':
                 $this->handleStreamingCopy($operation);
-
                 break;
             default:
                 $this->executeOperationSync($operation);
@@ -403,6 +430,7 @@ final readonly class FileOperationHandler
     private function handleStreamingRead(FileOperation $operation): void
     {
         if ($operation->isCancelled()) {
+            $this->completeOperation($operation);
             return;
         }
 
@@ -411,20 +439,20 @@ final readonly class FileOperationHandler
 
         if (! file_exists($path)) {
             $operation->executeCallback("File does not exist: $path");
-
+            $this->completeOperation($operation);
             return;
         }
 
         if (! is_readable($path)) {
             $operation->executeCallback("File is not readable: $path");
-
+            $this->completeOperation($operation);
             return;
         }
 
         $stream = @fopen($path, 'rb');
         if ($stream === false) {
             $operation->executeCallback("Failed to open file: $path");
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -449,16 +477,17 @@ final readonly class FileOperationHandler
      */
     private function scheduleStreamRead(FileOperation $operation, $stream, string &$content, int &$bytesRead, ?int $maxLength): void
     {
+        // Check for cancellation at the start of each iteration
         if ($operation->isCancelled()) {
             fclose($stream);
-
+            $this->completeOperation($operation);
             return;
         }
 
         if (feof($stream) || ($maxLength !== null && $bytesRead >= $maxLength)) {
             fclose($stream);
             $operation->executeCallback(null, $content);
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -470,7 +499,7 @@ final readonly class FileOperationHandler
         if ($chunkSize <= 0) {
             fclose($stream);
             $operation->executeCallback(null, $content);
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -478,7 +507,7 @@ final readonly class FileOperationHandler
         if ($chunk === false) {
             fclose($stream);
             $operation->executeCallback('Failed to read from file');
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -493,6 +522,7 @@ final readonly class FileOperationHandler
     private function handleStreamingWrite(FileOperation $operation): void
     {
         if ($operation->isCancelled()) {
+            $this->completeOperation($operation);
             return;
         }
 
@@ -500,7 +530,7 @@ final readonly class FileOperationHandler
         $data = $operation->getData();
         if (! is_scalar($data)) {
             $operation->executeCallback('Invalid data provided for writing. Must be a scalar value.');
-
+            $this->completeOperation($operation);
             return;
         }
         $data = (string) $data;
@@ -512,7 +542,7 @@ final readonly class FileOperationHandler
             if (! is_dir($dir)) {
                 if (! mkdir($dir, 0755, true)) {
                     $operation->executeCallback("Failed to create directory: $dir");
-
+                    $this->completeOperation($operation);
                     return;
                 }
             }
@@ -527,7 +557,7 @@ final readonly class FileOperationHandler
         $stream = @fopen($path, $mode);
         if ($stream === false) {
             $operation->executeCallback("Failed to open file for writing: $path");
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -542,16 +572,17 @@ final readonly class FileOperationHandler
      */
     private function scheduleStreamWrite(FileOperation $operation, $stream, string $data, int &$bytesWritten, int $totalLength): void
     {
+        // Check for cancellation at the start of each iteration
         if ($operation->isCancelled()) {
             fclose($stream);
-
+            $this->completeOperation($operation);
             return;
         }
 
         if ($bytesWritten >= $totalLength) {
             fclose($stream);
             $operation->executeCallback(null, $bytesWritten);
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -562,7 +593,7 @@ final readonly class FileOperationHandler
         if ($written === false) {
             fclose($stream);
             $operation->executeCallback('Failed to write to file');
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -576,6 +607,7 @@ final readonly class FileOperationHandler
     private function handleStreamingCopy(FileOperation $operation): void
     {
         if ($operation->isCancelled()) {
+            $this->completeOperation($operation);
             return;
         }
 
@@ -584,20 +616,20 @@ final readonly class FileOperationHandler
 
         if (! is_string($destinationPath) || $destinationPath === '') {
             $operation->executeCallback('Invalid destination path provided for copy.');
-
+            $this->completeOperation($operation);
             return;
         }
 
         if (! file_exists($sourcePath)) {
             $operation->executeCallback("Source file does not exist: $sourcePath");
-
+            $this->completeOperation($operation);
             return;
         }
 
         $sourceStream = @fopen($sourcePath, 'rb');
         if ($sourceStream === false) {
             $operation->executeCallback("Failed to open source file: $sourcePath");
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -605,7 +637,7 @@ final readonly class FileOperationHandler
         if ($destStream === false) {
             fclose($sourceStream);
             $operation->executeCallback("Failed to open destination file: {$destinationPath}");
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -618,10 +650,11 @@ final readonly class FileOperationHandler
      */
     private function scheduleStreamCopy(FileOperation $operation, $sourceStream, $destStream): void
     {
+        // Check for cancellation at the start of each iteration
         if ($operation->isCancelled()) {
             fclose($sourceStream);
             fclose($destStream);
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -629,7 +662,7 @@ final readonly class FileOperationHandler
             fclose($sourceStream);
             fclose($destStream);
             $operation->executeCallback(null, true);
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -638,7 +671,7 @@ final readonly class FileOperationHandler
             fclose($sourceStream);
             fclose($destStream);
             $operation->executeCallback('Failed to read from source file');
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -647,7 +680,7 @@ final readonly class FileOperationHandler
             fclose($sourceStream);
             fclose($destStream);
             $operation->executeCallback('Failed to write to destination file');
-
+            $this->completeOperation($operation);
             return;
         }
 
@@ -659,6 +692,7 @@ final readonly class FileOperationHandler
     private function executeOperationSync(FileOperation $operation): void
     {
         if ($operation->isCancelled()) {
+            $this->completeOperation($operation);
             return;
         }
 
@@ -666,57 +700,48 @@ final readonly class FileOperationHandler
             switch ($operation->getType()) {
                 case 'read':
                     $this->handleRead($operation);
-
                     break;
                 case 'write':
                     $this->handleWrite($operation);
-
                     break;
                 case 'write_generator':
                     $this->handleWriteFromGenerator($operation);
-
                     break;
                 case 'read_generator':
                     $this->handleReadAsGenerator($operation);
-
                     break;
                 case 'append':
                     $this->handleAppend($operation);
-
                     break;
                 case 'delete':
                     $this->handleDelete($operation);
-
                     break;
                 case 'exists':
                     $this->handleExists($operation);
-
                     break;
                 case 'stat':
                     $this->handleStat($operation);
-
                     break;
                 case 'mkdir':
                     $this->handleMkdir($operation);
-
                     break;
                 case 'rmdir':
                     $this->handleRmdir($operation);
-
                     break;
                 case 'copy':
                     $this->handleCopy($operation);
-
                     break;
                 case 'rename':
                     $this->handleRename($operation);
-
                     break;
                 default:
                     throw new InvalidArgumentException("Unknown operation type: {$operation->getType()}");
             }
         } catch (Throwable $e) {
             $operation->executeCallback($e->getMessage());
+        } finally {
+            // Complete synchronous operations immediately
+            $this->completeOperation($operation);
         }
     }
 
@@ -798,7 +823,6 @@ final readonly class FileOperationHandler
 
         if (! file_exists($path)) {
             $operation->executeCallback(null, true);
-
             return;
         }
 
@@ -849,7 +873,6 @@ final readonly class FileOperationHandler
 
         if (is_dir($path)) {
             $operation->executeCallback(null, true);
-
             return;
         }
 
@@ -868,7 +891,6 @@ final readonly class FileOperationHandler
 
         if (! is_dir($path)) {
             $operation->executeCallback(null, true);
-
             return;
         }
 
