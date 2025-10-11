@@ -131,7 +131,7 @@ class TimerManager implements TimerManagerInterface
         $currentTime = microtime(true);
 
         // Convert mixed Timer|PeriodicTimer array to Timer array for calculateDelay
-        $regularTimers = array_filter($this->timers, fn($timer): bool => $timer instanceof Timer);
+        $regularTimers = array_filter($this->timers, fn ($timer): bool => $timer instanceof Timer);
         /** @var array<Timer> $regularTimersTyped */
         $regularTimersTyped = array_values($regularTimers);
 

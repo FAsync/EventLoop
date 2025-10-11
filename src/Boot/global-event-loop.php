@@ -9,8 +9,8 @@ $cwd = getcwd();
 $currentDir = $cwd !== false ? $cwd : __DIR__;
 
 $possibleRoots = [
-    $currentDir, 
-    dirname(__DIR__, 5), 
+    $currentDir,
+    dirname(__DIR__, 5),
     dirname(__DIR__, 4),
     dirname(__DIR__, 3),
     dirname(__DIR__, 2),
@@ -21,6 +21,7 @@ $dotenv = null;
 foreach ($possibleRoots as $path) {
     if (file_exists($path . '/.env')) {
         $dotenv = Dotenv::createImmutable($path);
+
         break;
     }
 }
