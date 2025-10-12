@@ -88,9 +88,6 @@ class FileManager implements FileManagerInterface
             )
         );
 
-        // Keep in operationsById map so streaming operations can check isCancelled()
-        // The operation will be removed by completeOperation() callback
-
         return true;
     }
 
@@ -191,9 +188,6 @@ class FileManager implements FileManagerInterface
             if ($this->operationHandler->executeOperation($operation)) {
                 $processed = true;
             }
-
-            // Don't clean up from ID map here - streaming operations need to stay tracked
-            // They will be cleaned up by the completeOperation() callback
         }
 
         return $processed;
