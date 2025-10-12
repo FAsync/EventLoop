@@ -8,12 +8,13 @@ echo "=== Mid-Flight Stream Cancellation Tests ===\n\n";
 
 $testResults = [
     'passed' => 0,
-    'failed' => 0
+    'failed' => 0,
 ];
 
-function recordResult(bool $passed, string $message): void {
+function recordResult(bool $passed, string $message): void
+{
     global $testResults;
-    
+
     if ($passed) {
         $testResults['passed']++;
         echo "  ✓ $message\n";
@@ -32,9 +33,9 @@ if (file_exists($testFile1)) {
 }
 
 // Create a large data payload (1MB)
-$largeData = str_repeat("ABCDEFGHIJ", 100000); // 1MB of data
+$largeData = str_repeat('ABCDEFGHIJ', 100000); // 1MB of data
 $dataSize = strlen($largeData);
-echo "  Data size: " . number_format($dataSize) . " bytes\n";
+echo '  Data size: ' . number_format($dataSize) . " bytes\n";
 
 $writeCallbackExecuted = false;
 $operationId1 = Loop::addFileOperation(
@@ -56,15 +57,15 @@ $operationId1 = Loop::addFileOperation(
 // Schedule cancellation to happen mid-stream
 Loop::addTimer(0.001, function () use ($operationId1, $testFile1) {
     echo "  → Attempting to cancel mid-flight...\n";
-    
+
     $cancelled = Loop::cancelFileOperation($operationId1);
-    recordResult($cancelled, "Cancellation call returned: " . ($cancelled ? "true" : "false"));
-    
+    recordResult($cancelled, 'Cancellation call returned: ' . ($cancelled ? 'true' : 'false'));
+
     // Check if file exists at moment of cancellation
     $existsDuringCancel = file_exists($testFile1);
     if ($existsDuringCancel) {
         $sizeDuringCancel = filesize($testFile1);
-        echo "  ℹ File exists at cancellation with size: " . number_format($sizeDuringCancel) . " bytes\n";
+        echo '  ℹ File exists at cancellation with size: ' . number_format($sizeDuringCancel) . " bytes\n";
     } else {
         echo "  ℹ File doesn't exist at cancellation moment\n";
     }
@@ -72,31 +73,31 @@ Loop::addTimer(0.001, function () use ($operationId1, $testFile1) {
 
 Loop::addTimer(0.1, function () use ($testFile1, &$writeCallbackExecuted, $dataSize) {
     echo "  → Checking final state after cancellation...\n";
-    
+
     $finalExists = file_exists($testFile1);
-    
+
     if ($finalExists) {
         $finalSize = filesize($testFile1);
         $isPartial = $finalSize < $dataSize;
         $isComplete = $finalSize === $dataSize;
-        
-        echo "  ℹ Final file size: " . number_format($finalSize) . " bytes\n";
-        
+
+        echo '  ℹ Final file size: ' . number_format($finalSize) . " bytes\n";
+
         if ($isComplete) {
-            recordResult(false, "File is complete (should be cancelled/partial)");
-        } else if ($isPartial) {
-            recordResult(true, "File is partial/incomplete (correct - cancelled mid-flight)");
+            recordResult(false, 'File is complete (should be cancelled/partial)');
+        } elseif ($isPartial) {
+            recordResult(true, 'File is partial/incomplete (correct - cancelled mid-flight)');
         }
-        
-        recordResult(!$writeCallbackExecuted, "Write callback NOT executed: " . ($writeCallbackExecuted ? "false" : "true"));
-        
+
+        recordResult(! $writeCallbackExecuted, 'Write callback NOT executed: ' . ($writeCallbackExecuted ? 'false' : 'true'));
+
         // Clean up
         unlink($testFile1);
     } else {
         recordResult(true, "File doesn't exist (cancelled before any write)");
-        recordResult(!$writeCallbackExecuted, "Write callback NOT executed: " . ($writeCallbackExecuted ? "false" : "true"));
+        recordResult(! $writeCallbackExecuted, 'Write callback NOT executed: ' . ($writeCallbackExecuted ? 'false' : 'true'));
     }
-    
+
     echo "\n";
 });
 
@@ -105,10 +106,10 @@ echo "Test 2: Cancel streaming READ mid-flight\n";
 $testFile2 = __DIR__ . '/test_midstream_read.txt';
 
 // Create a large file to read (2MB)
-$largeContent = str_repeat("LINE_" . str_repeat("X", 95) . "\n", 20000); // ~2MB
+$largeContent = str_repeat('LINE_' . str_repeat('X', 95) . "\n", 20000); // ~2MB
 file_put_contents($testFile2, $largeContent);
 $fileSize = filesize($testFile2);
-echo "  File size: " . number_format($fileSize) . " bytes\n";
+echo '  File size: ' . number_format($fileSize) . " bytes\n";
 
 $readCallbackExecuted = false;
 $bytesReadBeforeCancel = 0;
@@ -125,7 +126,7 @@ $operationId2 = Loop::addFileOperation(
             $bytesRead = strlen($result);
             $bytesReadBeforeCancel = $bytesRead;
             echo "  ✗ Read callback called with success (should be cancelled!)\n";
-            echo "  ✗ Bytes read: " . number_format($bytesRead) . "\n";
+            echo '  ✗ Bytes read: ' . number_format($bytesRead) . "\n";
         }
     },
     ['use_streaming' => true]
@@ -134,25 +135,25 @@ $operationId2 = Loop::addFileOperation(
 // Cancel mid-read
 Loop::addTimer(0.001, function () use ($operationId2) {
     echo "  → Attempting to cancel mid-flight...\n";
-    
+
     $cancelled = Loop::cancelFileOperation($operationId2);
-    recordResult($cancelled, "Cancellation call returned: " . ($cancelled ? "true" : "false"));
+    recordResult($cancelled, 'Cancellation call returned: ' . ($cancelled ? 'true' : 'false'));
 });
 
 Loop::addTimer(0.1, function () use ($testFile2, &$readCallbackExecuted, &$bytesReadBeforeCancel, $fileSize) {
     echo "  → Checking final state after cancellation...\n";
-    
+
     if ($readCallbackExecuted) {
         $isPartial = $bytesReadBeforeCancel < $fileSize;
         if ($isPartial) {
-            recordResult(true, "Read was partial (correct - cancelled mid-flight)");
+            recordResult(true, 'Read was partial (correct - cancelled mid-flight)');
         } else {
-            recordResult(false, "Read was complete (should be cancelled)");
+            recordResult(false, 'Read was complete (should be cancelled)');
         }
     } else {
-        recordResult(true, "Read callback NOT executed (cancelled before completion)");
+        recordResult(true, 'Read callback NOT executed (cancelled before completion)');
     }
-    
+
     // Clean up
     unlink($testFile2);
     echo "\n";
@@ -164,10 +165,10 @@ $testSource3 = __DIR__ . '/test_midstream_copy_source.txt';
 $testDest3 = __DIR__ . '/test_midstream_copy_dest.txt';
 
 // Create large source file (1.5MB)
-$sourceContent = str_repeat("COPY_DATA_", 150000); // ~1.5MB
+$sourceContent = str_repeat('COPY_DATA_', 150000); // ~1.5MB
 file_put_contents($testSource3, $sourceContent);
 $sourceSize = filesize($testSource3);
-echo "  Source size: " . number_format($sourceSize) . " bytes\n";
+echo '  Source size: ' . number_format($sourceSize) . " bytes\n";
 
 if (file_exists($testDest3)) {
     unlink($testDest3);
@@ -193,39 +194,39 @@ $operationId3 = Loop::addFileOperation(
 // Cancel mid-copy
 Loop::addTimer(0.001, function () use ($operationId3, $testDest3) {
     echo "  → Attempting to cancel mid-flight...\n";
-    
+
     $cancelled = Loop::cancelFileOperation($operationId3);
-    recordResult($cancelled, "Cancellation call returned: " . ($cancelled ? "true" : "false"));
-    
+    recordResult($cancelled, 'Cancellation call returned: ' . ($cancelled ? 'true' : 'false'));
+
     if (file_exists($testDest3)) {
         $sizeDuringCancel = filesize($testDest3);
-        echo "  ℹ Destination size at cancellation: " . number_format($sizeDuringCancel) . " bytes\n";
+        echo '  ℹ Destination size at cancellation: ' . number_format($sizeDuringCancel) . " bytes\n";
     }
 });
 
 Loop::addTimer(0.1, function () use ($testSource3, $testDest3, &$copyCallbackExecuted, $sourceSize) {
     echo "  → Checking final state after cancellation...\n";
-    
+
     if (file_exists($testDest3)) {
         $destSize = filesize($testDest3);
         $isPartial = $destSize < $sourceSize;
         $isComplete = $destSize === $sourceSize;
-        
-        echo "  ℹ Final destination size: " . number_format($destSize) . " bytes\n";
-        
+
+        echo '  ℹ Final destination size: ' . number_format($destSize) . " bytes\n";
+
         if ($isComplete) {
-            recordResult(false, "Copy is complete (should be cancelled/partial)");
-        } else if ($isPartial) {
-            recordResult(true, "Copy is partial (correct - cancelled mid-flight)");
+            recordResult(false, 'Copy is complete (should be cancelled/partial)');
+        } elseif ($isPartial) {
+            recordResult(true, 'Copy is partial (correct - cancelled mid-flight)');
         }
-        
+
         unlink($testDest3);
     } else {
         recordResult(true, "Destination doesn't exist (cancelled before any copy)");
     }
-    
-    recordResult(!$copyCallbackExecuted, "Copy callback NOT executed: " . ($copyCallbackExecuted ? "false" : "true"));
-    
+
+    recordResult(! $copyCallbackExecuted, 'Copy callback NOT executed: ' . ($copyCallbackExecuted ? 'false' : 'true'));
+
     unlink($testSource3);
     echo "\n";
 });
@@ -243,7 +244,7 @@ $chunksYielded = 0;
 $generator4 = (function () use (&$chunksYielded) {
     for ($i = 0; $i < 1000; $i++) {
         $chunksYielded++;
-        yield "CHUNK_$i:" . str_repeat("DATA", 250) . "\n"; // ~1KB per chunk
+        yield "CHUNK_$i:" . str_repeat('DATA', 250) . "\n"; // ~1KB per chunk
     }
 })();
 
@@ -267,35 +268,35 @@ $operationId4 = Loop::addFileOperation(
 // Use nextTick to cancel on the very next iteration while generator is processing
 Loop::nextTick(function () use ($operationId4) {
     echo "  → Attempting to cancel on next tick (mid-flight)...\n";
-    
+
     $cancelled = Loop::cancelFileOperation($operationId4);
-    recordResult($cancelled, "Cancellation call returned: " . ($cancelled ? "true" : "false"));
+    recordResult($cancelled, 'Cancellation call returned: ' . ($cancelled ? 'true' : 'false'));
 });
 
 Loop::defer(function () use ($testFile4, &$genCallbackExecuted, &$chunksYielded) {
     echo "  → Checking final state after cancellation...\n";
     echo "  ℹ Chunks yielded: $chunksYielded\n";
-    
+
     if (file_exists($testFile4)) {
         $finalSize = filesize($testFile4);
-        echo "  ℹ Final file size: " . number_format($finalSize) . " bytes\n";
-        
+        echo '  ℹ Final file size: ' . number_format($finalSize) . " bytes\n";
+
         $expectedFullSize = 1000 * 1004; // ~1MB if complete
         $isPartial = $finalSize < $expectedFullSize;
-        
+
         if ($isPartial || $chunksYielded < 1000) {
-            recordResult(true, "Generator write is partial or incomplete (correct - cancelled mid-flight)");
+            recordResult(true, 'Generator write is partial or incomplete (correct - cancelled mid-flight)');
         } else {
-            recordResult(false, "Generator write is complete (should be cancelled)");
+            recordResult(false, 'Generator write is complete (should be cancelled)');
         }
-        
+
         unlink($testFile4);
     } else {
         recordResult(true, "File doesn't exist (cancelled before any write)");
     }
-    
-    recordResult(!$genCallbackExecuted, "Generator callback NOT executed: " . ($genCallbackExecuted ? "false" : "true"));
-    
+
+    recordResult(! $genCallbackExecuted, 'Generator callback NOT executed: ' . ($genCallbackExecuted ? 'false' : 'true'));
+
     echo "\n";
 });
 
@@ -307,7 +308,7 @@ if (file_exists($testFile5)) {
     unlink($testFile5);
 }
 
-$rapidData = str_repeat("RAPID", 200000); // 1MB
+$rapidData = str_repeat('RAPID', 200000); // 1MB
 $rapidCallbackExecuted = false;
 
 $operationId5 = Loop::addFileOperation(
@@ -323,35 +324,35 @@ $operationId5 = Loop::addFileOperation(
 
 // Cancel IMMEDIATELY (same tick)
 $rapidCancelled = Loop::cancelFileOperation($operationId5);
-recordResult($rapidCancelled, "Immediate cancellation returned: " . ($rapidCancelled ? "true" : "false"));
+recordResult($rapidCancelled, 'Immediate cancellation returned: ' . ($rapidCancelled ? 'true' : 'false'));
 
 Loop::addTimer(0.05, function () use ($testFile5, &$rapidCallbackExecuted) {
     echo "  → Checking final state...\n";
-    
+
     $exists = file_exists($testFile5);
-    recordResult(!$exists, "File doesn't exist: " . ($exists ? "false" : "true"));
-    recordResult(!$rapidCallbackExecuted, "Callback NOT executed: " . ($rapidCallbackExecuted ? "false" : "true"));
-    
+    recordResult(! $exists, "File doesn't exist: " . ($exists ? 'false' : 'true'));
+    recordResult(! $rapidCallbackExecuted, 'Callback NOT executed: ' . ($rapidCallbackExecuted ? 'false' : 'true'));
+
     if ($exists) {
-        echo "  ⚠ File size: " . filesize($testFile5) . " bytes\n";
+        echo '  ⚠ File size: ' . filesize($testFile5) . " bytes\n";
         unlink($testFile5);
     }
-    
+
     echo "\n";
 });
 
 // Final report
 Loop::addTimer(0.2, function () use (&$testResults) {
     echo "=== FINAL MID-FLIGHT CANCELLATION REPORT ===\n\n";
-    
+
     $total = $testResults['passed'] + $testResults['failed'];
     $passRate = $total > 0 ? ($testResults['passed'] / $total) * 100 : 0;
-    
+
     echo "Total Checks: $total\n";
     echo "Passed: {$testResults['passed']} ✓\n";
     echo "Failed: {$testResults['failed']} ✗\n";
-    echo "Pass Rate: " . number_format($passRate, 1) . "%\n\n";
-    
+    echo 'Pass Rate: ' . number_format($passRate, 1) . "%\n\n";
+
     if ($testResults['failed'] === 0) {
         echo "🎉 🎉 🎉 ALL MID-FLIGHT CANCELLATION TESTS PASSED! 🎉 🎉 🎉\n\n";
         echo "✓ Streaming writes can be cancelled mid-flight\n";
@@ -366,7 +367,7 @@ Loop::addTimer(0.2, function () use (&$testResults) {
         echo "⚠ SOME TESTS FAILED - Details above\n";
         echo "Most likely timing issues with fast operations\n";
     }
-    
+
     Loop::stop();
 });
 

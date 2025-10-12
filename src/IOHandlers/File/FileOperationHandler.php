@@ -18,8 +18,9 @@ final class FileOperationHandler
      * @param callable|null $onOperationComplete Callback to notify when operation completes: fn(string $operationId): void
      */
     public function __construct(
-        private  $onOperationComplete = null
-    ) {}
+        private $onOperationComplete = null
+    ) {
+    }
 
     /**
      * @param  array<string, mixed>  $options
@@ -38,6 +39,7 @@ final class FileOperationHandler
     {
         if ($operation->isCancelled()) {
             $this->completeOperation($operation);
+
             return false;
         }
 
@@ -78,6 +80,7 @@ final class FileOperationHandler
     {
         if ($operation->isCancelled()) {
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -96,6 +99,7 @@ final class FileOperationHandler
                 if (! mkdir($dir, 0755, true)) {
                     $operation->executeCallback("Failed to create directory: $dir");
                     $this->completeOperation($operation);
+
                     return;
                 }
             }
@@ -111,6 +115,7 @@ final class FileOperationHandler
         if ($stream === false) {
             $operation->executeCallback("Failed to open file for writing: $path");
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -147,6 +152,7 @@ final class FileOperationHandler
         if ($operation->isCancelled()) {
             fclose($stream);
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -159,6 +165,7 @@ final class FileOperationHandler
             if ($operation->isCancelled()) {
                 fclose($stream);
                 $this->completeOperation($operation);
+
                 return;
             }
 
@@ -167,6 +174,7 @@ final class FileOperationHandler
                     fclose($stream);
                     $operation->executeCallback(null, $bytesWritten);
                     $this->completeOperation($operation);
+
                     return;
                 }
 
@@ -176,6 +184,7 @@ final class FileOperationHandler
                     fclose($stream);
                     $operation->executeCallback('Generator must yield string chunks');
                     $this->completeOperation($operation);
+
                     return;
                 }
 
@@ -191,6 +200,7 @@ final class FileOperationHandler
                 fclose($stream);
                 $operation->executeCallback('Failed to write to file');
                 $this->completeOperation($operation);
+
                 return;
             }
 
@@ -240,6 +250,7 @@ final class FileOperationHandler
     {
         if ($operation->isCancelled()) {
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -249,12 +260,14 @@ final class FileOperationHandler
         if (! file_exists($path)) {
             $operation->executeCallback("File does not exist: $path");
             $this->completeOperation($operation);
+
             return;
         }
 
         if (! is_readable($path)) {
             $operation->executeCallback("File is not readable: $path");
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -340,6 +353,11 @@ final class FileOperationHandler
      *
      * @param  array<string,mixed>  $options
      */
+    /**
+     * Create a generator that yields file lines.
+     *
+     * @param  array<string,mixed>  $options
+     */
     private function createLineGenerator(string $path, array $options, FileOperation $operation): Generator
     {
         $chunkSizeRaw = $options['chunk_size'] ?? self::CHUNK_SIZE;
@@ -373,9 +391,10 @@ final class FileOperationHandler
                 $buffer .= $chunk;
 
                 // Process complete lines in buffer
-                while (($pos = strpos($buffer, "\n")) !== false) {
-                    $line = substr($buffer, 0, $pos + 1);
-                    $buffer = substr($buffer, $pos + 1);
+                // Handle all line ending types: \r\n, \n, \r
+                while (preg_match('/^(.*?)(\r\n|\n|\r)/', $buffer, $matches)) {
+                    $line = $matches[1];  // Line content without line ending
+                    $buffer = substr($buffer, strlen($matches[0]));  // Remove processed part
 
                     if ($trim) {
                         $line = trim($line);
@@ -415,12 +434,15 @@ final class FileOperationHandler
         switch ($operation->getType()) {
             case 'read':
                 $this->handleStreamingRead($operation);
+
                 break;
             case 'write':
                 $this->handleStreamingWrite($operation);
+
                 break;
             case 'copy':
                 $this->handleStreamingCopy($operation);
+
                 break;
             default:
                 $this->executeOperationSync($operation);
@@ -431,6 +453,7 @@ final class FileOperationHandler
     {
         if ($operation->isCancelled()) {
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -440,12 +463,14 @@ final class FileOperationHandler
         if (! file_exists($path)) {
             $operation->executeCallback("File does not exist: $path");
             $this->completeOperation($operation);
+
             return;
         }
 
         if (! is_readable($path)) {
             $operation->executeCallback("File is not readable: $path");
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -453,6 +478,7 @@ final class FileOperationHandler
         if ($stream === false) {
             $operation->executeCallback("Failed to open file: $path");
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -481,6 +507,7 @@ final class FileOperationHandler
         if ($operation->isCancelled()) {
             fclose($stream);
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -488,6 +515,7 @@ final class FileOperationHandler
             fclose($stream);
             $operation->executeCallback(null, $content);
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -500,6 +528,7 @@ final class FileOperationHandler
             fclose($stream);
             $operation->executeCallback(null, $content);
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -508,6 +537,7 @@ final class FileOperationHandler
             fclose($stream);
             $operation->executeCallback('Failed to read from file');
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -523,6 +553,7 @@ final class FileOperationHandler
     {
         if ($operation->isCancelled()) {
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -531,6 +562,7 @@ final class FileOperationHandler
         if (! is_scalar($data)) {
             $operation->executeCallback('Invalid data provided for writing. Must be a scalar value.');
             $this->completeOperation($operation);
+
             return;
         }
         $data = (string) $data;
@@ -543,6 +575,7 @@ final class FileOperationHandler
                 if (! mkdir($dir, 0755, true)) {
                     $operation->executeCallback("Failed to create directory: $dir");
                     $this->completeOperation($operation);
+
                     return;
                 }
             }
@@ -558,6 +591,7 @@ final class FileOperationHandler
         if ($stream === false) {
             $operation->executeCallback("Failed to open file for writing: $path");
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -576,6 +610,7 @@ final class FileOperationHandler
         if ($operation->isCancelled()) {
             fclose($stream);
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -583,6 +618,7 @@ final class FileOperationHandler
             fclose($stream);
             $operation->executeCallback(null, $bytesWritten);
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -594,6 +630,7 @@ final class FileOperationHandler
             fclose($stream);
             $operation->executeCallback('Failed to write to file');
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -608,6 +645,7 @@ final class FileOperationHandler
     {
         if ($operation->isCancelled()) {
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -617,12 +655,14 @@ final class FileOperationHandler
         if (! is_string($destinationPath) || $destinationPath === '') {
             $operation->executeCallback('Invalid destination path provided for copy.');
             $this->completeOperation($operation);
+
             return;
         }
 
         if (! file_exists($sourcePath)) {
             $operation->executeCallback("Source file does not exist: $sourcePath");
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -630,6 +670,7 @@ final class FileOperationHandler
         if ($sourceStream === false) {
             $operation->executeCallback("Failed to open source file: $sourcePath");
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -638,6 +679,7 @@ final class FileOperationHandler
             fclose($sourceStream);
             $operation->executeCallback("Failed to open destination file: {$destinationPath}");
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -655,6 +697,7 @@ final class FileOperationHandler
             fclose($sourceStream);
             fclose($destStream);
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -663,6 +706,7 @@ final class FileOperationHandler
             fclose($destStream);
             $operation->executeCallback(null, true);
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -672,6 +716,7 @@ final class FileOperationHandler
             fclose($destStream);
             $operation->executeCallback('Failed to read from source file');
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -681,6 +726,7 @@ final class FileOperationHandler
             fclose($destStream);
             $operation->executeCallback('Failed to write to destination file');
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -693,6 +739,7 @@ final class FileOperationHandler
     {
         if ($operation->isCancelled()) {
             $this->completeOperation($operation);
+
             return;
         }
 
@@ -700,47 +747,76 @@ final class FileOperationHandler
             switch ($operation->getType()) {
                 case 'read':
                     $this->handleRead($operation);
+
                     break;
                 case 'write':
                     $this->handleWrite($operation);
+
                     break;
                 case 'write_generator':
                     $this->handleWriteFromGenerator($operation);
+
                     break;
                 case 'read_generator':
                     $this->handleReadAsGenerator($operation);
+
                     break;
                 case 'append':
                     $this->handleAppend($operation);
+
                     break;
                 case 'delete':
                     $this->handleDelete($operation);
+
                     break;
                 case 'exists':
                     $this->handleExists($operation);
+
                     break;
                 case 'stat':
                     $this->handleStat($operation);
+
                     break;
                 case 'mkdir':
                     $this->handleMkdir($operation);
+
                     break;
                 case 'rmdir':
                     $this->handleRmdir($operation);
+
                     break;
                 case 'copy':
                     $this->handleCopy($operation);
+
                     break;
                 case 'rename':
                     $this->handleRename($operation);
+
                     break;
                 default:
-                    throw new InvalidArgumentException("Unknown operation type: {$operation->getType()}");
+                    $availableTypes = [
+                        'read',
+                        'write',
+                        'write_generator',
+                        'read_generator',
+                        'append',
+                        'delete',
+                        'exists',
+                        'stat',
+                        'mkdir',
+                        'rmdir',
+                        'copy',
+                        'rename',
+                    ];
+
+                    throw new InvalidArgumentException(
+                        "Unknown operation type: '{$operation->getType()}'. " .
+                            'Available types: ' . implode(', ', $availableTypes)
+                    );
             }
         } catch (Throwable $e) {
-            $operation->executeCallback($e->getMessage());
+            throw $e;
         } finally {
-            // Complete synchronous operations immediately
             $this->completeOperation($operation);
         }
     }
@@ -822,17 +898,28 @@ final class FileOperationHandler
         $path = $operation->getPath();
 
         if (! file_exists($path)) {
-            $operation->executeCallback(null, true);
+            $operation->executeCallback("File does not exist: $path");
+            $this->completeOperation($operation);
+
             return;
         }
 
-        $result = unlink($path);
+        if (! is_file($path)) {
+            $operation->executeCallback("Path is not a file: $path");
+            $this->completeOperation($operation);
 
-        if ($result === false) {
-            throw new RuntimeException("Failed to delete file: $path");
+            return;
         }
 
-        $operation->executeCallback(null, true);
+        $result = @unlink($path);
+
+        if ($result === false) {
+            $operation->executeCallback("Failed to delete file: $path");
+        } else {
+            $operation->executeCallback(null, true);
+        }
+
+        $this->completeOperation($operation);
     }
 
     private function handleExists(FileOperation $operation): void
@@ -871,15 +958,19 @@ final class FileOperationHandler
         $recursiveRaw = $options['recursive'] ?? false;
         $recursive = is_scalar($recursiveRaw) ? (bool) $recursiveRaw : false;
 
+        // Check if directory already exists
         if (is_dir($path)) {
-            $operation->executeCallback(null, true);
+            $operation->executeCallback(error: 'File or directory already exists');
+
             return;
         }
 
         $result = mkdir($path, $mode, $recursive);
 
         if ($result === false) {
-            throw new RuntimeException("Failed to create directory: $path");
+            $operation->executeCallback(error: "Failed to create directory: $path");
+
+            return;
         }
 
         $operation->executeCallback(null, true);
@@ -890,18 +981,21 @@ final class FileOperationHandler
         $path = $operation->getPath();
 
         if (! is_dir($path)) {
-            $operation->executeCallback(null, true);
+            $operation->executeCallback(error: 'File or directory not found');
+
             return;
         }
 
         $files = array_diff(scandir($path), ['.', '..']);
 
         if (count($files) > 0) {
-            $this->removeDirectoryRecursive($path, $operation);
+            $this->removeDirectoryRecursive(dir: $path, operation: $operation);
         } else {
             $result = rmdir($path);
             if ($result === false) {
-                throw new RuntimeException("Failed to remove directory: $path");
+                $operation->executeCallback(error: "Failed to remove directory: $path");
+
+                return;
             }
         }
 
@@ -945,20 +1039,35 @@ final class FileOperationHandler
         $destinationPath = $operation->getData();
 
         if (! is_string($destinationPath)) {
-            throw new InvalidArgumentException('Destination path for copy must be a string.');
+            $operation->executeCallback('Destination path for copy must be a string.');
+            $this->completeOperation($operation);
+
+            return;
         }
 
         if (! file_exists($sourcePath)) {
-            throw new RuntimeException("Source file does not exist: $sourcePath");
+            $operation->executeCallback("Source file does not exist: $sourcePath");
+            $this->completeOperation($operation);
+
+            return;
         }
 
-        $result = copy($sourcePath, $destinationPath);
+        if (! is_file($sourcePath)) {
+            $operation->executeCallback("Source path is not a file: $sourcePath");
+            $this->completeOperation($operation);
+
+            return;
+        }
+
+        $result = @copy($sourcePath, $destinationPath);
 
         if ($result === false) {
-            throw new RuntimeException("Failed to copy file from {$sourcePath} to {$destinationPath}");
+            $operation->executeCallback("Failed to copy file from {$sourcePath} to {$destinationPath}");
+        } else {
+            $operation->executeCallback(null, true);
         }
 
-        $operation->executeCallback(null, true);
+        $this->completeOperation($operation);
     }
 
     private function handleRename(FileOperation $operation): void
@@ -967,17 +1076,29 @@ final class FileOperationHandler
         $newPath = $operation->getData();
 
         if (! is_string($newPath)) {
-            throw new InvalidArgumentException('New path for rename must be a string.');
+            $operation->executeCallback(error: 'New path for rename must be a string.');
+
+            return;
         }
 
         if (! file_exists($oldPath)) {
-            throw new RuntimeException("Source file does not exist: $oldPath");
+            $operation->executeCallback(error: 'File or directory not found');
+
+            return;
         }
 
-        $result = rename($oldPath, $newPath);
+        if (file_exists($newPath)) {
+            $operation->executeCallback(error: 'File or directory already exists');
+
+            return;
+        }
+
+        $result = @rename($oldPath, $newPath);
 
         if ($result === false) {
-            throw new RuntimeException("Failed to rename file from {$oldPath} to {$newPath}");
+            $operation->executeCallback(error: "Failed to rename file from {$oldPath} to {$newPath}");
+
+            return;
         }
 
         $operation->executeCallback(null, true);

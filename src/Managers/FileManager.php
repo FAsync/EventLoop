@@ -35,7 +35,7 @@ class FileManager implements FileManagerInterface
     {
         // Pass a cleanup callback to the operation handler
         $this->operationHandler = new FileOperationHandler(
-            fn(string $operationId) => $this->removeCompletedOperation($operationId)
+            fn (string $operationId) => $this->removeCompletedOperation($operationId)
         );
         $this->watcherHandler = new FileWatcherHandler();
     }
@@ -184,6 +184,7 @@ class FileManager implements FileManagerInterface
             if ($operation->isCancelled()) {
                 // Clean up immediately for cancelled operations
                 unset($this->operationsById[$operation->getId()]);
+
                 continue;
             }
 
@@ -216,8 +217,8 @@ class FileManager implements FileManagerInterface
      */
     public function hasWork(): bool
     {
-        return count($this->pendingOperations) > 0 
-            || count($this->operationsById) > 0 
+        return count($this->pendingOperations) > 0
+            || count($this->operationsById) > 0
             || count($this->watchers) > 0;
     }
 
