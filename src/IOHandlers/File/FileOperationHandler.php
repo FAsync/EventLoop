@@ -827,11 +827,17 @@ final class FileOperationHandler
         $options = $operation->getOptions();
 
         if (! file_exists($path)) {
-            throw new RuntimeException("File does not exist: $path");
+            $operation->executeCallback("File does not exist: $path");
+            $this->completeOperation($operation);
+
+            return;
         }
 
         if (! is_readable($path)) {
-            throw new RuntimeException("File is not readable: $path");
+            $operation->executeCallback("Permission denied: File is not readable: $path");
+            $this->completeOperation($operation);
+
+            return;
         }
 
         $offsetRaw = $options['offset'] ?? 0;
@@ -841,16 +847,20 @@ final class FileOperationHandler
         $length = is_numeric($lengthRaw) ? max(0, (int) $lengthRaw) : null;
 
         if ($length !== null) {
-            $content = file_get_contents($path, false, null, $offset, $length);
+            $content = @file_get_contents($path, false, null, $offset, $length);
         } else {
-            $content = file_get_contents($path, false, null, $offset);
+            $content = @file_get_contents($path, false, null, $offset);
         }
 
         if ($content === false) {
-            throw new RuntimeException("Failed to read file: $path");
+            $operation->executeCallback("Failed to read file: $path");
+            $this->completeOperation($operation);
+
+            return;
         }
 
         $operation->executeCallback(null, $content);
+        $this->completeOperation($operation);
     }
 
     private function handleWrite(FileOperation $operation): void
@@ -866,17 +876,49 @@ final class FileOperationHandler
         if (is_scalar($createDirs) && (bool) $createDirs) {
             $dir = dirname($path);
             if (! is_dir($dir)) {
-                mkdir($dir, 0755, true);
+                $mkdirResult = @mkdir($dir, 0755, true);
+                if ($mkdirResult === false) {
+                    $operation->executeCallback("Permission denied: Failed to create directory: $dir");
+                    $this->completeOperation($operation);
+
+                    return;
+                }
             }
         }
 
-        $result = file_put_contents($path, $data, $flags);
+        $dir = dirname($path);
+        if (! is_dir($dir)) {
+            $operation->executeCallback("Directory does not exist: $dir");
+            $this->completeOperation($operation);
+
+            return;
+        }
+
+        if (! is_writable($dir)) {
+            $operation->executeCallback("Permission denied: Directory is not writable: $dir");
+            $this->completeOperation($operation);
+
+            return;
+        }
+
+        if (file_exists($path) && ! is_writable($path)) {
+            $operation->executeCallback("Permission denied: File is not writable: $path");
+            $this->completeOperation($operation);
+
+            return;
+        }
+
+        $result = @file_put_contents($path, $data, $flags);
 
         if ($result === false) {
-            throw new RuntimeException("Failed to write file: $path");
+            $operation->executeCallback("Failed to write file: $path");
+            $this->completeOperation($operation);
+
+            return;
         }
 
         $operation->executeCallback(null, $result);
+        $this->completeOperation($operation);
     }
 
     private function handleAppend(FileOperation $operation): void
@@ -935,16 +977,23 @@ final class FileOperationHandler
         $path = $operation->getPath();
 
         if (! file_exists($path)) {
-            throw new RuntimeException("File does not exist: $path");
+            $operation->executeCallback("File does not exist: $path");
+            $this->completeOperation($operation);
+
+            return;
         }
 
-        $stat = stat($path);
+        $stat = @stat($path);
 
         if ($stat === false) {
-            throw new RuntimeException("Failed to get file stats: $path");
+            $operation->executeCallback("Failed to get file stats: $path");
+            $this->completeOperation($operation);
+
+            return;
         }
 
         $operation->executeCallback(null, $stat);
+        $this->completeOperation($operation);
     }
 
     private function handleMkdir(FileOperation $operation): void

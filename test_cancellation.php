@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+use Hibla\EventLoop\EventLoop;
 
-use Hibla\EventLoop\Loop;
+require_once __DIR__ . '/vendor/autoload.php';
 
 echo "=== Mid-Flight Stream Cancellation Tests ===\n\n";
 
@@ -38,7 +38,7 @@ $dataSize = strlen($largeData);
 echo '  Data size: ' . number_format($dataSize) . " bytes\n";
 
 $writeCallbackExecuted = false;
-$operationId1 = Loop::addFileOperation(
+$operationId1 = EventLoop::getInstance()->addFileOperation(
     'write',
     $testFile1,
     $largeData,
@@ -55,10 +55,10 @@ $operationId1 = Loop::addFileOperation(
 );
 
 // Schedule cancellation to happen mid-stream
-Loop::addTimer(0.001, function () use ($operationId1, $testFile1) {
+EventLoop::getInstance()->addTimer(0.001, function () use ($operationId1, $testFile1) {
     echo "  → Attempting to cancel mid-flight...\n";
 
-    $cancelled = Loop::cancelFileOperation($operationId1);
+    $cancelled = EventLoop::getInstance()->cancelFileOperation($operationId1);
     recordResult($cancelled, 'Cancellation call returned: ' . ($cancelled ? 'true' : 'false'));
 
     // Check if file exists at moment of cancellation
@@ -71,7 +71,7 @@ Loop::addTimer(0.001, function () use ($operationId1, $testFile1) {
     }
 });
 
-Loop::addTimer(0.1, function () use ($testFile1, &$writeCallbackExecuted, $dataSize) {
+EventLoop::getInstance()->addTimer(0.1, function () use ($testFile1, &$writeCallbackExecuted, $dataSize) {
     echo "  → Checking final state after cancellation...\n";
 
     $finalExists = file_exists($testFile1);
@@ -114,7 +114,7 @@ echo '  File size: ' . number_format($fileSize) . " bytes\n";
 $readCallbackExecuted = false;
 $bytesReadBeforeCancel = 0;
 
-$operationId2 = Loop::addFileOperation(
+$operationId2 = EventLoop::getInstance()->addFileOperation(
     'read',
     $testFile2,
     null,
@@ -133,14 +133,14 @@ $operationId2 = Loop::addFileOperation(
 );
 
 // Cancel mid-read
-Loop::addTimer(0.001, function () use ($operationId2) {
+EventLoop::getInstance()->addTimer(0.001, function () use ($operationId2) {
     echo "  → Attempting to cancel mid-flight...\n";
 
-    $cancelled = Loop::cancelFileOperation($operationId2);
+    $cancelled = EventLoop::getInstance()->cancelFileOperation($operationId2);
     recordResult($cancelled, 'Cancellation call returned: ' . ($cancelled ? 'true' : 'false'));
 });
 
-Loop::addTimer(0.1, function () use ($testFile2, &$readCallbackExecuted, &$bytesReadBeforeCancel, $fileSize) {
+EventLoop::getInstance()->addTimer(0.1, function () use ($testFile2, &$readCallbackExecuted, &$bytesReadBeforeCancel, $fileSize) {
     echo "  → Checking final state after cancellation...\n";
 
     if ($readCallbackExecuted) {
@@ -176,7 +176,7 @@ if (file_exists($testDest3)) {
 
 $copyCallbackExecuted = false;
 
-$operationId3 = Loop::addFileOperation(
+$operationId3 = EventLoop::getInstance()->addFileOperation(
     'copy',
     $testSource3,
     $testDest3,
@@ -192,10 +192,10 @@ $operationId3 = Loop::addFileOperation(
 );
 
 // Cancel mid-copy
-Loop::addTimer(0.001, function () use ($operationId3, $testDest3) {
+EventLoop::getInstance()->addTimer(0.001, function () use ($operationId3, $testDest3) {
     echo "  → Attempting to cancel mid-flight...\n";
 
-    $cancelled = Loop::cancelFileOperation($operationId3);
+    $cancelled = EventLoop::getInstance()->cancelFileOperation($operationId3);
     recordResult($cancelled, 'Cancellation call returned: ' . ($cancelled ? 'true' : 'false'));
 
     if (file_exists($testDest3)) {
@@ -204,7 +204,7 @@ Loop::addTimer(0.001, function () use ($operationId3, $testDest3) {
     }
 });
 
-Loop::addTimer(0.1, function () use ($testSource3, $testDest3, &$copyCallbackExecuted, $sourceSize) {
+EventLoop::getInstance()->addTimer(0.1, function () use ($testSource3, $testDest3, &$copyCallbackExecuted, $sourceSize) {
     echo "  → Checking final state after cancellation...\n";
 
     if (file_exists($testDest3)) {
@@ -250,7 +250,7 @@ $generator4 = (function () use (&$chunksYielded) {
 
 $genCallbackExecuted = false;
 
-$operationId4 = Loop::addFileOperation(
+$operationId4 = EventLoop::getInstance()->addFileOperation(
     'write_generator',
     $testFile4,
     $generator4,
@@ -266,14 +266,14 @@ $operationId4 = Loop::addFileOperation(
 );
 
 // Use nextTick to cancel on the very next iteration while generator is processing
-Loop::nextTick(function () use ($operationId4) {
+EventLoop::getInstance()->nextTick(function () use ($operationId4) {
     echo "  → Attempting to cancel on next tick (mid-flight)...\n";
 
-    $cancelled = Loop::cancelFileOperation($operationId4);
+    $cancelled = EventLoop::getInstance()->cancelFileOperation($operationId4);
     recordResult($cancelled, 'Cancellation call returned: ' . ($cancelled ? 'true' : 'false'));
 });
 
-Loop::defer(function () use ($testFile4, &$genCallbackExecuted, &$chunksYielded) {
+EventLoop::getInstance()->defer(function () use ($testFile4, &$genCallbackExecuted, &$chunksYielded) {
     echo "  → Checking final state after cancellation...\n";
     echo "  ℹ Chunks yielded: $chunksYielded\n";
 
@@ -311,7 +311,7 @@ if (file_exists($testFile5)) {
 $rapidData = str_repeat('RAPID', 200000); // 1MB
 $rapidCallbackExecuted = false;
 
-$operationId5 = Loop::addFileOperation(
+$operationId5 = EventLoop::getInstance()->addFileOperation(
     'write',
     $testFile5,
     $rapidData,
@@ -323,10 +323,10 @@ $operationId5 = Loop::addFileOperation(
 );
 
 // Cancel IMMEDIATELY (same tick)
-$rapidCancelled = Loop::cancelFileOperation($operationId5);
+$rapidCancelled = EventLoop::getInstance()->cancelFileOperation($operationId5);
 recordResult($rapidCancelled, 'Immediate cancellation returned: ' . ($rapidCancelled ? 'true' : 'false'));
 
-Loop::addTimer(0.05, function () use ($testFile5, &$rapidCallbackExecuted) {
+EventLoop::getInstance()->addTimer(0.05, function () use ($testFile5, &$rapidCallbackExecuted) {
     echo "  → Checking final state...\n";
 
     $exists = file_exists($testFile5);
@@ -342,7 +342,7 @@ Loop::addTimer(0.05, function () use ($testFile5, &$rapidCallbackExecuted) {
 });
 
 // Final report
-Loop::addTimer(0.2, function () use (&$testResults) {
+EventLoop::getInstance()->addTimer(0.2, function () use (&$testResults) {
     echo "=== FINAL MID-FLIGHT CANCELLATION REPORT ===\n\n";
 
     $total = $testResults['passed'] + $testResults['failed'];
@@ -368,7 +368,7 @@ Loop::addTimer(0.2, function () use (&$testResults) {
         echo "Most likely timing issues with fast operations\n";
     }
 
-    Loop::stop();
+    EventLoop::getInstance()->stop();
 });
 
-Loop::run();
+EventLoop::getInstance()->run();
