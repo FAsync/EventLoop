@@ -277,16 +277,6 @@ final class Loop
     }
 
     /**
-     * Check if event loop is using UV extension.
-     *
-     * @return bool True if UV is available, false otherwise
-     */
-    public static function isUsingUv(): bool
-    {
-        return EventLoop::getInstance()->isUsingUv();
-    }
-
-    /**
      * Get the socket manager.
      *
      * @return SocketManager The socket manager instance

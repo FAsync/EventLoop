@@ -197,13 +197,6 @@ interface EventLoopInterface
     public function getIterationCount(): int;
 
     /**
-     * Check if event loop is using UV extension.
-     *
-     * @return bool True if UV is available and being used, false otherwise
-     */
-    public function isUsingUv(): bool;
-
-    /**
      * Get the socket manager instance.
      *
      * @return object The socket manager instance

@@ -60,11 +60,4 @@ describe('EventLoop Managers Access', function () {
 
         expect($socketManager)->toBeInstanceOf(Hibla\EventLoop\Managers\SocketManager::class);
     });
-
-    it('detects UV availability', function () {
-        $loop = EventLoop::getInstance();
-        $hasUv = $loop->isUsingUv();
-
-        expect($hasUv)->toBeIn([true, false]);
-    });
 });

@@ -3,7 +3,6 @@
 namespace Hibla\EventLoop;
 
 use Fiber;
-use Hibla\EventLoop\Factories\EventLoopComponentFactory;
 use Hibla\EventLoop\Handlers\ActivityHandler;
 use Hibla\EventLoop\Handlers\SleepHandler;
 use Hibla\EventLoop\Handlers\StateHandler;
@@ -16,7 +15,6 @@ use Hibla\EventLoop\Managers\HttpRequestManager;
 use Hibla\EventLoop\Managers\SocketManager;
 use Hibla\EventLoop\Managers\StreamManager;
 use Hibla\EventLoop\Managers\TimerManager;
-use Hibla\EventLoop\UV\Detectors\UVDetector;
 use Hibla\EventLoop\ValueObjects\StreamWatcher;
 
 /**
@@ -87,17 +85,17 @@ final class EventLoop implements EventLoopInterface
 
     private function __construct()
     {
-        $this->timerManager = EventLoopComponentFactory::createTimerManager();
+        $this->timerManager = new TimerManager();
         $this->httpRequestManager = new HttpRequestManager();
-        $this->streamManager = EventLoopComponentFactory::createStreamManager();
+        $this->streamManager = new StreamManager();
         $this->fiberManager = new FiberManager();
         $this->tickHandler = new TickHandler();
         $this->activityHandler = new ActivityHandler();
         $this->stateHandler = new StateHandler();
         $this->fileManager = new FileManager();
-        $this->socketManager = EventLoopComponentFactory::createSocketManager();
+        $this->socketManager = new SocketManager();
 
-        $this->workHandler = EventLoopComponentFactory::createWorkHandler(
+        $this->workHandler = new WorkHandler(
             timerManager: $this->timerManager,
             httpRequestManager: $this->httpRequestManager,
             streamManager: $this->streamManager,
@@ -107,20 +105,10 @@ final class EventLoop implements EventLoopInterface
             socketManager: $this->socketManager,
         );
 
-        $this->sleepHandler = EventLoopComponentFactory::createSleepHandler(
-            $this->timerManager,
-            $this->fiberManager
+        $this->sleepHandler = new SleepHandler(
+            timerManager: $this->timerManager,
+            fiberManager: $this->fiberManager
         );
-    }
-
-    /**
-     * Check if event loop is using UV extension.
-     *
-     * @return bool True if UV is available, false otherwise
-     */
-    public function isUsingUv(): bool
-    {
-        return UVDetector::isUvAvailable();
     }
 
     /**
@@ -287,8 +275,6 @@ final class EventLoop implements EventLoopInterface
      */
     public function run(): void
     {
-        $isUsingUv = UVDetector::isUvAvailable();
-
         while ($this->stateHandler->isRunning() && $this->workHandler->hasWork()) {
             $this->iterationCount++;
             $hasImmediateWork = $this->tick();
@@ -297,7 +283,7 @@ final class EventLoop implements EventLoopInterface
                 $this->optimizeLoop();
             }
 
-            if (! $isUsingUv && $this->sleepHandler->shouldSleep($hasImmediateWork)) {
+            if ($this->sleepHandler->shouldSleep($hasImmediateWork)) {
                 $sleepTime = $this->sleepHandler->calculateOptimalSleep();
                 $this->sleepHandler->sleep($sleepTime);
             }
