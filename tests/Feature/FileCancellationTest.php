@@ -2,9 +2,6 @@
 
 use Hibla\EventLoop\EventLoop;
 
-/**
- * Helper function to set up the test environment.
- */
 function setupCancellationTest(): void
 {
     EventLoop::reset();
@@ -15,9 +12,6 @@ function setupCancellationTest(): void
     }
 }
 
-/**
- * Helper function to tear down the test environment.
- */
 function teardownCancellationTest(array $testFiles): void
 {
     foreach ($testFiles as $file) {
@@ -28,9 +22,6 @@ function teardownCancellationTest(array $testFiles): void
     EventLoop::reset();
 }
 
-/**
- * Helper function to run assertions inside the event loop
- */
 function runAsyncTest(callable $testCallback, callable $assertionCallback, float $timeout = 0.2): void
 {
     $testCallback();
@@ -43,9 +34,6 @@ function runAsyncTest(callable $testCallback, callable $assertionCallback, float
     EventLoop::getInstance()->run();
 }
 
-/**
- * Helper to capture operation cancellation results
- */
 function captureOperationResult(): array
 {
     return [
