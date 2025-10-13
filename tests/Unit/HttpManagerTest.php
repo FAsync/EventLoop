@@ -47,7 +47,7 @@ describe('HttpRequestManager', function () {
     it('provides debug information', function () {
         $manager = new HttpRequestManager();
 
-        $manager->addHttpRequest('https://httpbin.org/get', [], fn() => null);
+        $manager->addHttpRequest('https://httpbin.org/get', [], fn () => null);
 
         $debug = $manager->getDebugInfo();
 
@@ -88,8 +88,8 @@ describe('HttpRequestManager', function () {
     it('can clear pending requests only', function () {
         $manager = new HttpRequestManager();
 
-        $manager->addHttpRequest('https://httpbin.org/get', [], fn() => null);
-        $manager->addHttpRequest('https://httpbin.org/post', [], fn() => null);
+        $manager->addHttpRequest('https://httpbin.org/get', [], fn () => null);
+        $manager->addHttpRequest('https://httpbin.org/post', [], fn () => null);
 
         $cleared = $manager->clearPendingRequests();
 
@@ -104,7 +104,7 @@ describe('HttpRequestManager', function () {
 
         $manager = new HttpRequestManager();
 
-        $manager->addHttpRequest('https://httpbin.org/get', [], fn() => null);
+        $manager->addHttpRequest('https://httpbin.org/get', [], fn () => null);
 
         $processed = $manager->processRequests();
         expect($processed)->toBeTrue();

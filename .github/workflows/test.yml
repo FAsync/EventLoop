@@ -40,3 +40,6 @@ jobs:
         
       - name: Run Static Analysis
         run: ./vendor/bin/phpstan analyse
+      
+      - name: Run Laravel Pint
+        run: ./vendor/bin/pint

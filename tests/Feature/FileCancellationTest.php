@@ -5,9 +5,9 @@ use Hibla\EventLoop\EventLoop;
 function setupCancellationTest(): void
 {
     EventLoop::reset();
-    
+
     $tempDir = __DIR__ . '/../temp';
-    if (!is_dir($tempDir)) {
+    if (! is_dir($tempDir)) {
         mkdir($tempDir, 0755, true);
     }
 }
@@ -25,12 +25,12 @@ function teardownCancellationTest(array $testFiles): void
 function runAsyncTest(callable $testCallback, callable $assertionCallback, float $timeout = 0.2): void
 {
     $testCallback();
-    
+
     EventLoop::getInstance()->addTimer($timeout, function () use ($assertionCallback) {
         $assertionCallback();
         EventLoop::getInstance()->stop();
     });
-    
+
     EventLoop::getInstance()->run();
 }
 
@@ -45,14 +45,15 @@ function captureOperationResult(): array
 }
 
 describe('Mid-Flight Stream Cancellation', function () {
-    
+
     it('can cancel streaming write mid-flight', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testFile = __DIR__ . '/../temp/test_midstream_write.txt';
             $testFiles[] = $testFile;
-            
+
             if (file_exists($testFile)) {
                 unlink($testFile);
             }
@@ -80,12 +81,12 @@ describe('Mid-Flight Stream Cancellation', function () {
                     });
                 },
                 function () use ($testFile, $dataSize, &$state) {
-                    if (!$state['cancelled']) {
+                    if (! $state['cancelled']) {
                         expect($state['callbackExecuted'])->toBeTrue('Operation completed before cancellation');
                     } else {
                         expect($state['cancelled'])->toBeTrue('Operation should be cancelled');
                         expect($state['callbackExecuted'])->toBeFalse('Callback should not execute for cancelled operation');
-                        
+
                         if (file_exists($testFile)) {
                             $finalSize = filesize($testFile);
                             expect($finalSize)->toBeLessThan($dataSize, 'File should be partial');
@@ -102,6 +103,7 @@ describe('Mid-Flight Stream Cancellation', function () {
     it('can cancel streaming read mid-flight', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testFile = __DIR__ . '/../temp/test_midstream_read.txt';
             $testFiles[] = $testFile;
@@ -109,7 +111,7 @@ describe('Mid-Flight Stream Cancellation', function () {
             $largeContent = str_repeat('LINE_' . str_repeat('X', 95) . "\n", 20000);
             file_put_contents($testFile, $largeContent);
             $fileSize = filesize($testFile);
-            
+
             $state = captureOperationResult();
 
             runAsyncTest(
@@ -131,11 +133,11 @@ describe('Mid-Flight Stream Cancellation', function () {
                     });
                 },
                 function () use ($fileSize, &$state) {
-                    if (!$state['cancelled']) {
+                    if (! $state['cancelled']) {
                         expect($state['callbackExecuted'])->toBeTrue('Operation completed before cancellation');
                     } else {
                         expect($state['cancelled'])->toBeTrue('Operation should be cancelled');
-                        
+
                         if ($state['callbackExecuted']) {
                             $bytesRead = strlen($state['result'] ?? '');
                             expect($bytesRead)->toBeLessThan($fileSize, 'Read should be partial');
@@ -154,6 +156,7 @@ describe('Mid-Flight Stream Cancellation', function () {
     it('can cancel streaming copy mid-flight', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testSource = __DIR__ . '/../temp/test_midstream_copy_source.txt';
             $testDest = __DIR__ . '/../temp/test_midstream_copy_dest.txt';
@@ -189,12 +192,12 @@ describe('Mid-Flight Stream Cancellation', function () {
                     });
                 },
                 function () use ($testDest, $sourceSize, &$state) {
-                    if (!$state['cancelled']) {
+                    if (! $state['cancelled']) {
                         expect($state['callbackExecuted'])->toBeTrue('Operation completed before cancellation');
                     } else {
                         expect($state['cancelled'])->toBeTrue('Operation should be cancelled');
                         expect($state['callbackExecuted'])->toBeFalse('Callback should not execute');
-                        
+
                         if (file_exists($testDest)) {
                             $destSize = filesize($testDest);
                             expect($destSize)->toBeLessThan($sourceSize, 'Copy should be partial');
@@ -211,6 +214,7 @@ describe('Mid-Flight Stream Cancellation', function () {
     it('can cancel generator write mid-flight', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testFile = __DIR__ . '/../temp/test_midstream_generator.txt';
             $testFiles[] = $testFile;
@@ -249,13 +253,13 @@ describe('Mid-Flight Stream Cancellation', function () {
                 function () use ($testFile, &$chunksYielded, &$state) {
                     expect($state['cancelled'])->toBeTrue('Generator operation should be cancelled');
                     expect($state['callbackExecuted'])->toBeFalse('Callback should not execute');
-                    
+
                     if (file_exists($testFile)) {
                         $finalSize = filesize($testFile);
                         $expectedFullSize = 1000 * 1004;
                         expect($finalSize)->toBeLessThan($expectedFullSize, 'Generator write should be incomplete');
                     }
-                    
+
                     expect($chunksYielded)->toBeLessThan(1000, 'Not all chunks should be yielded');
                 },
                 0.2
@@ -268,6 +272,7 @@ describe('Mid-Flight Stream Cancellation', function () {
     it('can handle immediate/rapid cancellation', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testFile = __DIR__ . '/../temp/test_rapid_cancel.txt';
             $testFiles[] = $testFile;
@@ -308,6 +313,7 @@ describe('Mid-Flight Stream Cancellation', function () {
     it('prevents callback execution for cancelled operations', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testFile = __DIR__ . '/../temp/test_no_callback.txt';
             $testFiles[] = $testFile;
@@ -343,6 +349,7 @@ describe('Mid-Flight Stream Cancellation', function () {
     it('handles partial data correctly after cancellation', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testFile = __DIR__ . '/../temp/test_partial_data.txt';
             $testFiles[] = $testFile;
@@ -368,11 +375,11 @@ describe('Mid-Flight Stream Cancellation', function () {
                     });
                 },
                 function () use ($testFile, $dataSize, &$state) {
-                    if (!$state['cancelled']) {
+                    if (! $state['cancelled']) {
                         expect($state['callbackExecuted'])->toBeTrue('Operation completed before cancellation');
                     } else {
                         expect($state['cancelled'])->toBeTrue('Operation should be cancelled');
-                        
+
                         if (file_exists($testFile)) {
                             $partialSize = filesize($testFile);
                             expect($partialSize)->toBeGreaterThan(0, 'Should have some partial data');
@@ -390,17 +397,18 @@ describe('Mid-Flight Stream Cancellation', function () {
     it('can cancel multiple operations independently', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testFile1 = __DIR__ . '/../temp/test_multi_cancel_1.txt';
             $testFile2 = __DIR__ . '/../temp/test_multi_cancel_2.txt';
             $testFile3 = __DIR__ . '/../temp/test_multi_cancel_3.txt';
-            
+
             $testFiles[] = $testFile1;
             $testFiles[] = $testFile2;
             $testFiles[] = $testFile3;
 
             $data = str_repeat('DATA', 100000);
-            
+
             $state1 = captureOperationResult();
             $state2 = captureOperationResult();
             $state3 = captureOperationResult();
@@ -408,19 +416,25 @@ describe('Mid-Flight Stream Cancellation', function () {
             runAsyncTest(
                 function () use ($testFile1, $testFile2, $testFile3, $data, &$state1, &$state2, &$state3) {
                     $op1 = EventLoop::getInstance()->addFileOperation(
-                        'write', $testFile1, $data,
+                        'write',
+                        $testFile1,
+                        $data,
                         function ($error) use (&$state1) { $state1['callbackExecuted'] = true; },
                         ['use_streaming' => true]
                     );
 
                     EventLoop::getInstance()->addFileOperation(
-                        'write', $testFile2, $data,
+                        'write',
+                        $testFile2,
+                        $data,
                         function ($error) use (&$state2) { $state2['callbackExecuted'] = true; },
                         ['use_streaming' => true]
                     );
 
                     $op3 = EventLoop::getInstance()->addFileOperation(
-                        'write', $testFile3, $data,
+                        'write',
+                        $testFile3,
+                        $data,
                         function ($error) use (&$state3) { $state3['callbackExecuted'] = true; },
                         ['use_streaming' => true]
                     );
@@ -433,10 +447,10 @@ describe('Mid-Flight Stream Cancellation', function () {
                 function () use (&$state1, &$state2, &$state3) {
                     expect($state1['cancelled'])->toBeTrue('Operation 1 should be cancelled');
                     expect($state1['callbackExecuted'])->toBeFalse('Operation 1 callback should not execute');
-                    
+
                     expect($state3['cancelled'])->toBeTrue('Operation 3 should be cancelled');
                     expect($state3['callbackExecuted'])->toBeFalse('Operation 3 callback should not execute');
-                    
+
                     expect($state2['callbackExecuted'])->toBeTrue('Operation 2 should complete');
                 },
                 0.25
@@ -448,6 +462,7 @@ describe('Mid-Flight Stream Cancellation', function () {
 
     it('returns false when cancelling non-existent operation', function () {
         setupCancellationTest();
+
         try {
             $result = EventLoop::getInstance()->cancelFileOperation('non-existent-id');
             expect($result)->toBeFalse();
@@ -459,6 +474,7 @@ describe('Mid-Flight Stream Cancellation', function () {
     it('returns false when cancelling already completed operation', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testFile = __DIR__ . '/../temp/test_completed_cancel.txt';
             $testFiles[] = $testFile;
@@ -477,7 +493,7 @@ describe('Mid-Flight Stream Cancellation', function () {
                         'small data',
                         function () use (&$state) {
                             $state['completed'] = true;
-                            
+
                             EventLoop::getInstance()->nextTick(function () use (&$state) {
                                 $state['cancelResult'] = EventLoop::getInstance()->cancelFileOperation(
                                     $state['operationId']
@@ -496,10 +512,11 @@ describe('Mid-Flight Stream Cancellation', function () {
             teardownCancellationTest($testFiles);
         }
     });
-    
+
     it('demonstrates timing-dependent cancellation behavior', function () {
         setupCancellationTest();
         $testFiles = [];
+
         try {
             $testFile = __DIR__ . '/../temp/test_timing_demo.txt';
             $testFiles[] = $testFile;
