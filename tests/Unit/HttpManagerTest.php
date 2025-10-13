@@ -47,7 +47,7 @@ describe('HttpRequestManager', function () {
     it('provides debug information', function () {
         $manager = new HttpRequestManager();
 
-        $manager->addHttpRequest('https://httpbin.org/get', [], fn () => null);
+        $manager->addHttpRequest('https://httpbin.org/get', [], fn() => null);
 
         $debug = $manager->getDebugInfo();
 
@@ -88,8 +88,8 @@ describe('HttpRequestManager', function () {
     it('can clear pending requests only', function () {
         $manager = new HttpRequestManager();
 
-        $manager->addHttpRequest('https://httpbin.org/get', [], fn () => null);
-        $manager->addHttpRequest('https://httpbin.org/post', [], fn () => null);
+        $manager->addHttpRequest('https://httpbin.org/get', [], fn() => null);
+        $manager->addHttpRequest('https://httpbin.org/post', [], fn() => null);
 
         $cleared = $manager->clearPendingRequests();
 
@@ -98,14 +98,18 @@ describe('HttpRequestManager', function () {
     });
 
     it('processes requests when called', function () {
+        if (getenv('CI')) {
+            test()->markTestSkipped('Skipped on CI environment');
+        }
+
         $manager = new HttpRequestManager();
 
-        $manager->addHttpRequest('https://httpbin.org/get', [], fn () => null);
+        $manager->addHttpRequest('https://httpbin.org/get', [], fn() => null);
 
         $processed = $manager->processRequests();
         expect($processed)->toBeTrue();
 
         $debug = $manager->getDebugInfo();
         expect($debug['pending_count'])->toBe(0);
-    })->skipOnCI();
+    });
 });

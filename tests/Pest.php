@@ -56,6 +56,13 @@ expect()->extend('toBeValidTimestamp', function () {
 |
 */
 
+function skipOnCI(): void
+{
+    if (getenv('CI')) {
+        test()->markTestSkipped('Skipped on CI environment');
+    }
+}
+
 /**
  * Create a temporary stream resource for testing
  */
